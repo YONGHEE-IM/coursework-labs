@@ -1,6 +1,6 @@
 # Coursework Labs
 
-국비 과정에서 진행한 실습 기록입니다.  
+IT 교육과정에서 진행한 실습 기록입니다.  
 (Python / SQL / R / AI 실습 중심)
 
 ## Contents

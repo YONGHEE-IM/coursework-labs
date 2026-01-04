@@ -9,8 +9,5 @@
 - `r/` : R 데이터 처리 실습
 - `ai/` : Jupyter Notebook 기반 AI 실습
 
-## Notes
-- 강의자료 원본이 아닌, **직접 작성한 실습 코드 중심**으로 정리했습니다.
-
 - Coursework: https://github.com/YONGHEE-IM/coursework-labs
 

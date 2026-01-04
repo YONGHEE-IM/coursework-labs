@@ -1,0 +1,323 @@
+## 문제1
+
+def perceptron(x1, x2, w1, w2):
+    # Bias 값 설정
+    B = -1
+    
+    # 신호의 총합 계산
+    output = x1 * w1 + x2 * w2 + B
+    
+    # 외출 여부 결정
+    if output > 0:
+        y = 1  # 외출함
+    else:
+        y = 0  # 외출하지 않음
+    
+    return output, y
+
+# 예제 값
+output, y = perceptron(x1=1, x2=1, w1=0.5, w2=1.5)
+print("신호의 총합:", output)
+print("외출 여부:", "외출함" if y == 1 else "외출하지 않음")
+
+## 문제 2
+def perceptron(x, w):
+    # Bias는 w[0] 값으로 설정
+    b = w[0]
+    
+    # 신호의 총합 계산
+    output = sum(xi * wi for xi, wi in zip(x, w[1:])) + b
+    
+    # 활성화 함수 적용
+    y = 1 if output >= 0 else 0
+    
+    return output, y
+
+# 입력값 및 가중치 예제
+x = [0.5, -1.2, 0.8, 1.5]
+w = [0.2, 0.5, -0.3, 0.8, 1.0]  # w[0]은 Bias, 나머지는 가중치
+
+# 퍼셉트론 함수 호출
+output, y = perceptron(x, w)
+print("신호의 총합:", output)
+print("최종 신호:", y)
+
+## 문제 3
+# Step Function 정의
+def Step_Function(value):
+    return 1 if value >= 0 else 0
+
+# AND Gate 구현
+def AND_gate(x1, x2):
+    # AND 게이트에 맞는 가중치와 바이어스 설정
+    w1, w2 = 0.5, 0.5
+    b = -0.7
+    # 신호의 총합 계산
+    output = w1 * x1 + w2 * x2 + b
+    # 계단 함수 적용
+    return Step_Function(output)
+
+# OR Gate 구현
+def OR_gate(x1, x2):
+    # OR 게이트에 맞는 가중치와 바이어스 설정
+    w1, w2 = 0.5, 0.5
+    b = -0.2
+    # 신호의 총합 계산
+    output = w1 * x1 + w2 * x2 + b
+    # 계단 함수 적용
+    return Step_Function(output)
+
+# AND Gate 테스트
+print("AND Gate 결과:")
+print(AND_gate(0, 0))  # 출력: 0
+print(AND_gate(0, 1))  # 출력: 0
+print(AND_gate(1, 0))  # 출력: 0
+print(AND_gate(1, 1))  # 출력: 1
+
+# OR Gate 테스트
+print("OR Gate 결과:")
+print(OR_gate(0, 0))  # 출력: 0
+print(OR_gate(0, 1))  # 출력: 1
+print(OR_gate(1, 0))  # 출력: 1
+print(OR_gate(1, 1))  # 출력: 1
+
+## 문제 4
+# Step Function 정의 (앞에서 사용한 그대로)
+def Step_Function(value):
+    return 1 if value >= 0 else 0
+
+# NAND Gate 구현
+def NAND_gate(x1, x2):
+    # NAND 게이트에 맞는 가중치와 바이어스 설정 (예: -0.5, -0.5, 0.7)
+    w1, w2 = -0.5, -0.5
+    b = 0.7
+    # 신호의 총합 계산
+    output = w1 * x1 + w2 * x2 + b
+    # 계단 함수 적용
+    return Step_Function(output)
+
+# NOR Gate 구현
+def NOR_gate(x1, x2):
+    # NOR 게이트에 맞는 가중치와 바이어스 설정 (예: -0.5, -0.5, 0.2)
+    w1, w2 = -0.5, -0.5
+    b = 0.2
+    # 신호의 총합 계산
+    output = w1 * x1 + w2 * x2 + b
+    # 계단 함수 적용
+    return Step_Function(output)
+
+# NAND Gate 테스트
+print("NAND Gate 결과:")
+print(NAND_gate(0, 0))  # 출력: 1
+print(NAND_gate(0, 1))  # 출력: 1
+print(NAND_gate(1, 0))  # 출력: 1
+print(NAND_gate(1, 1))  # 출력: 0
+
+# NOR Gate 테스트
+print("NOR Gate 결과:")
+print(NOR_gate(0, 0))  # 출력: 1
+print(NOR_gate(0, 1))  # 출력: 0
+print(NOR_gate(1, 0))  # 출력: 0
+print(NOR_gate(1, 1))  # 출력: 0
+
+## 문제 5
+# Step Function 정의 (이전과 동일하게 사용)
+def Step_Function(value):
+    return 1 if value >= 0 else 0
+
+# XOR Gate 근사 구현
+def XOR_gate(x1, x2):
+    # XOR 게이트에 맞는 가중치와 바이어스를 임의로 설정
+    # 예: -0.5, 1.0 등의 값으로 초기 설정
+    w1, w2 = 1.0, 1.0
+    b = -1.0  # 적절한 Bias 설정
+    # 신호의 총합 계산
+    output = w1 * x1 + w2 * x2 + b
+    # 계단 함수 적용
+    return Step_Function(output)
+
+# XOR Gate 테스트
+print("XOR Gate 근사 결과:")
+print(XOR_gate(0, 0))  # 출력: 예상 결과는 0
+print(XOR_gate(0, 1))  # 출력: 예상 결과는 1
+print(XOR_gate(1, 0))  # 출력: 예상 결과는 1
+print(XOR_gate(1, 1))  # 출력: 예상 결과는 0
+
+
+## 문제 6
+# Step Function 정의
+def Step_Function(value):
+    return 1 if value >= 0 else 0
+
+# AND Gate
+def AND_gate(x1, x2):
+    w1, w2 = 0.5, 0.5
+    b = -0.7
+    output = w1 * x1 + w2 * x2 + b
+    return Step_Function(output)
+
+# OR Gate
+def OR_gate(x1, x2):
+    w1, w2 = 0.5, 0.5
+    b = -0.2
+    output = w1 * x1 + w2 * x2 + b
+    return Step_Function(output)
+
+# NAND Gate
+def NAND_gate(x1, x2):
+    w1, w2 = -0.5, -0.5
+    b = 0.7
+    output = w1 * x1 + w2 * x2 + b
+    return Step_Function(output)
+
+# XOR Gate 구현
+def XOR_gate(x1, x2):
+    # 1단계: NAND 게이트와 OR 게이트를 사용
+    nand_output = NAND_gate(x1, x2)
+    or_output = OR_gate(x1, x2)
+    
+    # 2단계: NAND와 OR의 출력을 AND 게이트에 입력
+    xor_output = AND_gate(nand_output, or_output)
+    
+    return xor_output
+
+# XOR Gate 테스트
+print("XOR Gate 결과:")
+print(XOR_gate(0, 0))  # 출력: 0
+print(XOR_gate(0, 1))  # 출력: 1
+print(XOR_gate(1, 0))  # 출력: 1
+print(XOR_gate(1, 1))  # 출력: 0
+
+
+## 문제 7
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+
+# 데이터셋 로드
+data = load_iris()
+X, y = data.data, data.target
+
+# report_clf_stats 함수 정의
+def report_clf_stats(clf, X_test, y_test):
+    # 예측 결과 계산
+    y_pred = clf.predict(X_test)
+    # 맞춘 데이터(hit)와 못 맞춘 데이터(miss) 계산
+    hit = (y_pred == y_test).sum()
+    miss = len(y_test) - hit
+    # 정확도 계산
+    score = (hit / len(y_test)) * 100
+    # 출력
+    print(f"Hit: {hit}, Miss: {miss}, Accuracy: {score:.2f}%")
+    return score
+
+# main 함수 정의
+def main():
+    # Step 1: 데이터셋 분할
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Step 2: MLPClassifier 모델 정의 및 히든층 조정
+    # hidden_layer_sizes 예시: (10, 10) -> 두 개의 히든층에 각각 10개의 퍼셉트론
+    clf = MLPClassifier(hidden_layer_sizes=(10, 10), max_iter=1000, random_state=42)
+
+    # Step 3: 모델 학습
+    clf.fit(X_train, y_train)
+
+    # Step 4: 정확도 출력
+    accuracy = report_clf_stats(clf, X_test, y_test)
+
+    # 정확도가 81% 이상인지 확인
+    if accuracy >= 81:
+        print("목표 정확도에 도달했습니다!")
+    else:
+        print("목표 정확도에 도달하지 못했습니다. 히든층과 퍼셉트론 개수를 조정해보세요.")
+
+# main 함수 실행
+main()
+
+
+## 문제 8
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import load_digits
+
+# 손글씨 데이터 불러오기
+digits = load_digits()
+X, y = digits.data, digits.target
+
+# report_clf_stats 함수 정의
+def report_clf_stats(clf, X_test, y_test):
+    y_pred = clf.predict(X_test)
+    hit = (y_pred == y_test).sum()
+    miss = len(y_test) - hit
+    score = (hit / len(y_test)) * 100
+    print(f"Hit: {hit}, Miss: {miss}, Accuracy: {score:.2f}%")
+    return score
+
+# main 함수 정의
+def main():
+    # Step 1: 데이터셋 분할 (앞 1600개는 학습, 나머지는 테스트)
+    X_train, X_test = X[:1600], X[1600:]
+    y_train, y_test = y[:1600], y[1600:]
+
+    # Step 2: MLPClassifier 모델 정의 및 hidden layer 크기 조정
+    clf = MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=1000, solver='adam', beta_1=0.999999, random_state=42)
+
+    # Step 3: 모델 학습
+    clf.fit(X_train, y_train)
+
+    # Step 4: 정확도 출력
+    accuracy = report_clf_stats(clf, X_test, y_test)
+
+    # 정확도가 95% 이상인지 확인
+    if accuracy >= 95:
+        print("목표 정확도에 도달했습니다!")
+    else:
+        print("목표 정확도에 도달하지 못했습니다. hidden_layer_sizes를 조정해보세요.")
+
+# main 함수 실행
+main()
+
+## 문제 9
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Perceptron
+from sklearn.metrics import accuracy_score
+
+# Iris 데이터 분리 함수 정의
+def load_and_split_data():
+    iris = load_iris()
+    X, y = iris.data, iris.target
+    # 학습용 데이터 80%, 테스트용 데이터 20%로 분리
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    return X_train, X_test, y_train, y_test
+
+# Perceptron 모델 학습 및 평가 함수 정의
+def train_and_evaluate_perceptron():
+    # 데이터 불러오기 및 분할
+    X_train, X_test, y_train, y_test = load_and_split_data()
+
+    # Perceptron 모델 정의 및 학습 (파라미터 조정 가능)
+    clf = Perceptron(max_iter=1000, tol=1e-3, eta0=0.01, random_state=42)
+    clf.fit(X_train, y_train)
+
+    # 테스트 데이터로 예측 수행
+    y_pred = clf.predict(X_test)
+
+    # 정확도 계산
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f"Perceptron 모델의 정확도: {accuracy * 100:.2f}%")
+    return accuracy
+
+# Perceptron 모델 학습 및 평가 실행
+accuracy = train_and_evaluate_perceptron()
+
+# 정확도가 90% 이상인지 확인
+if accuracy >= 0.90:
+    print("목표 정확도에 도달했습니다!")
+else:
+    print("목표 정확도에 도달하지 못했습니다. Perceptron의 파라미터를 조정해보세요.")
+
+
+

@@ -1,0 +1,445 @@
+## 문제 5
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, random_split, Dataset
+from torch.optim import Adam
+from torchtext.vocab import build_vocab_from_iterator
+from torchtext.data.utils import get_tokenizer
+import pandas as pd
+import numpy as np
+
+# Custom Dataset
+class TwitterDataset(Dataset):
+    def __init__(self, file_path, vocab=None, tokenizer=None):
+        self.data = pd.read_csv(file_path)
+        self.texts = self.data['text']
+        self.labels = self.data['label']
+        self.tokenizer = tokenizer or get_tokenizer("basic_english")
+        self.vocab = vocab or build_vocab_from_iterator(self._tokenize_generator(), specials=["<unk>"])
+        self.vocab.set_default_index(self.vocab["<unk>"])
+    
+    def _tokenize_generator(self):
+        for text in self.texts:
+            yield self.tokenizer(text)
+    
+    def __len__(self):
+        return len(self.labels)
+    
+    def __getitem__(self, idx):
+        text = self.texts[idx]
+        label = self.labels[idx]
+        tokenized_text = self.tokenizer(text)
+        numericalized_text = [self.vocab[token] for token in tokenized_text]
+        return torch.tensor(numericalized_text, dtype=torch.long), torch.tensor(label, dtype=torch.long)
+
+# RNN Model
+class RNNClassifier(nn.Module):
+    def __init__(self, vocab_size, embed_size, hidden_size, output_size):
+        super(RNNClassifier, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = nn.RNN(embed_size, hidden_size, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_size)
+    
+    def forward(self, x):
+        embedded = self.embedding(x)
+        output, hidden = self.rnn(embedded)
+        return self.fc(hidden.squeeze(0))
+
+# Training function
+def train(file_path, valid_file_path, test_file_path, epochs=10, batch_size=32, lr=0.001):
+    # Load dataset
+    tokenizer = get_tokenizer("basic_english")
+    dataset = TwitterDataset(file_path, tokenizer=tokenizer)
+    train_size = int(len(dataset) * 0.8)
+    valid_size = len(dataset) - train_size
+    train_dataset, valid_dataset = random_split(dataset, [train_size, valid_size], generator=torch.Generator().manual_seed(0))
+    
+    test_dataset = TwitterDataset(test_file_path, vocab=dataset.vocab, tokenizer=tokenizer)
+    
+    # Dataloaders
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size)
+
+    # Model, Loss, Optimizer
+    vocab_size = len(dataset.vocab)
+    model = RNNClassifier(vocab_size, embed_size=128, hidden_size=128, output_size=3)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = Adam(model.parameters(), lr=lr)
+
+    # Training loop
+    for epoch in range(epochs):
+        model.train()
+        total_loss = 0
+        for texts, labels in train_loader:
+            optimizer.zero_grad()
+            outputs = model(texts)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
+        
+        print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss / len(train_loader):.4f}")
+        
+        # Validation
+        model.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for texts, labels in valid_loader:
+                outputs = model(texts)
+                _, predicted = torch.max(outputs, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        
+        print(f"Validation Accuracy: {correct / total:.4f}")
+
+    # Testing
+    model.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for texts, labels in test_loader:
+            outputs = model(texts)
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    
+    print(f"Test Accuracy: {correct / total:.4f}")
+
+if __name__ == "__main__":
+    train("train.csv", "valid.csv", "test.csv")
+
+## 문제 6
+# Custom Dataset
+class TwitterDataset(Dataset):
+    def __init__(self, file_path, vocab=None, tokenizer=None):
+        self.data = pd.read_csv(file_path)
+        self.texts = self.data['text']
+        self.labels = self.data['label']
+        self.tokenizer = tokenizer or get_tokenizer("basic_english")
+        self.vocab = vocab or build_vocab_from_iterator(self._tokenize_generator(), specials=["<unk>"])
+        self.vocab.set_default_index(self.vocab["<unk>"])
+    
+    def _tokenize_generator(self):
+        for text in self.texts:
+            yield self.tokenizer(text)
+    
+    def __len__(self):
+        return len(self.labels)
+    
+    def __getitem__(self, idx):
+        text = self.texts[idx]
+        label = self.labels[idx]
+        tokenized_text = self.tokenizer(text)
+        numericalized_text = [self.vocab[token] for token in tokenized_text]
+        return torch.tensor(numericalized_text, dtype=torch.long), torch.tensor(label, dtype=torch.long)
+
+# RNN Model
+class RNNClassifier(nn.Module):
+    def __init__(self, vocab_size, embed_size, hidden_size, output_size):
+        super(RNNClassifier, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.rnn = nn.RNN(embed_size, hidden_size, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_size)
+    
+    def forward(self, x):
+        embedded = self.embedding(x)
+        output, hidden = self.rnn(embedded)
+        return self.fc(hidden.squeeze(0))
+
+# Test function
+def test(model, test_loader, device):
+    model.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for texts, labels in test_loader:
+            texts, labels = texts.to(device), labels.to(device)
+            outputs = model(texts)
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    
+    print(f"Test Accuracy: {correct / total:.4f}")
+
+# Main function
+def main():
+    # Paths
+    model_path = "saved_model.pth"
+    test_data_path = "test.csv"
+
+    # Load tokenizer and vocab from training
+    tokenizer = get_tokenizer("basic_english")
+    train_data_path = "train.csv"
+    train_dataset = TwitterDataset(train_data_path, tokenizer=tokenizer)
+    vocab = train_dataset.vocab
+
+    # Load test dataset
+    test_dataset = TwitterDataset(test_data_path, vocab=vocab, tokenizer=tokenizer)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+
+    # Load model
+    vocab_size = len(vocab)
+    model = RNNClassifier(vocab_size, embed_size=128, hidden_size=128, output_size=3)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    
+    # Run test
+    test(model, test_loader, device)
+
+if __name__ == "__main__":
+    main()
+
+## 문제 7
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, random_split, Dataset
+from torchtext.vocab import build_vocab_from_iterator
+from torchtext.data.utils import get_tokenizer
+import pandas as pd
+
+# Custom Dataset
+class TwitterDataset(Dataset):
+    def __init__(self, file_path, vocab=None, tokenizer=None):
+        self.data = pd.read_csv(file_path)
+        self.texts = self.data['text']
+        self.labels = self.data['label']
+        self.tokenizer = tokenizer or get_tokenizer("basic_english")
+        self.vocab = vocab or build_vocab_from_iterator(self._tokenize_generator(), specials=["<unk>"])
+        self.vocab.set_default_index(self.vocab["<unk>"])
+    
+    def _tokenize_generator(self):
+        for text in self.texts:
+            yield self.tokenizer(text)
+    
+    def __len__(self):
+        return len(self.labels)
+    
+    def __getitem__(self, idx):
+        text = self.texts[idx]
+        label = self.labels[idx]
+        tokenized_text = self.tokenizer(text)
+        numericalized_text = [self.vocab[token] for token in tokenized_text]
+        return torch.tensor(numericalized_text, dtype=torch.long), torch.tensor(label, dtype=torch.long)
+
+# LSTM Classifier
+class LSTMClassifier(nn.Module):
+    def __init__(self, vocab_size, embed_size, hidden_size, output_size):
+        super(LSTMClassifier, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.lstm = nn.LSTM(embed_size, hidden_size, batch_first=True)
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_size, hidden_size // 2),
+            nn.ReLU(),
+            nn.Linear(hidden_size // 2, output_size)
+        )
+    
+    def forward(self, x):
+        embedded = self.embedding(x)
+        output, (hidden, cell) = self.lstm(embedded)
+        hidden = hidden[-1]  # Get the last hidden state
+        return self.fc(hidden)
+
+# Training function
+def train(file_path, valid_file_path, epochs=10, batch_size=32, lr=0.001):
+    # Load dataset
+    tokenizer = get_tokenizer("basic_english")
+    dataset = TwitterDataset(file_path, tokenizer=tokenizer)
+    train_size = int(len(dataset) * 0.8)
+    valid_size = len(dataset) - train_size
+    train_dataset, valid_dataset = random_split(dataset, [train_size, valid_size], generator=torch.Generator().manual_seed(0))
+    
+    # Explicitly load valid dataset
+    valid_dataset = TwitterDataset(valid_file_path, vocab=dataset.vocab, tokenizer=tokenizer)
+    
+    # Dataloaders
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
+
+    # Model, Loss, Optimizer
+    vocab_size = len(dataset.vocab)
+    model = LSTMClassifier(vocab_size, embed_size=128, hidden_size=128, output_size=3)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+    # Training loop
+    for epoch in range(epochs):
+        model.train()
+        total_loss = 0
+        for texts, labels in train_loader:
+            texts, labels = texts.to(device), labels.to(device)
+            optimizer.zero_grad()
+            outputs = model(texts)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
+        
+        print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss / len(train_loader):.4f}")
+        
+        # Validation
+        model.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for texts, labels in valid_loader:
+                texts, labels = texts.to(device), labels.to(device)
+                outputs = model(texts)
+                _, predicted = torch.max(outputs, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        
+        print(f"Validation Accuracy: {correct / total:.4f}")
+
+if __name__ == "__main__":
+    train("train.csv", "valid.csv")
+
+
+## 문제 8
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, Dataset
+from torchtext.vocab import build_vocab_from_iterator
+from torchtext.data.utils import get_tokenizer
+import pandas as pd
+
+# Custom Dataset
+class TwitterDataset(Dataset):
+    def __init__(self, file_path, vocab=None, tokenizer=None):
+        self.data = pd.read_csv(file_path)
+        self.texts = self.data['text']
+        self.labels = self.data['label']
+        self.tokenizer = tokenizer or get_tokenizer("basic_english")
+        self.vocab = vocab or build_vocab_from_iterator(self._tokenize_generator(), specials=["<unk>"])
+        self.vocab.set_default_index(self.vocab["<unk>"])
+    
+    def _tokenize_generator(self):
+        for text in self.texts:
+            yield self.tokenizer(text)
+    
+    def __len__(self):
+        return len(self.labels)
+    
+    def __getitem__(self, idx):
+        text = self.texts[idx]
+        label = self.labels[idx]
+        tokenized_text = self.tokenizer(text)
+        numericalized_text = [self.vocab[token] for token in tokenized_text]
+        return torch.tensor(numericalized_text, dtype=torch.long), torch.tensor(label, dtype=torch.long)
+
+# LSTM Classifier
+class LSTMClassifier(nn.Module):
+    def __init__(self, vocab_size, embed_size, hidden_size, output_size):
+        super(LSTMClassifier, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_size)
+        self.lstm = nn.LSTM(embed_size, hidden_size, batch_first=True)
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_size, hidden_size // 2),
+            nn.ReLU(),
+            nn.Linear(hidden_size // 2, output_size)
+        )
+    
+    def forward(self, x):
+        embedded = self.embedding(x)
+        output, (hidden, cell) = self.lstm(embedded)
+        hidden = hidden[-1]  # Get the last hidden state
+        return self.fc(hidden)
+
+# Test function
+def test(model, test_loader, device):
+    model.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for texts, labels in test_loader:
+            texts, labels = texts.to(device), labels.to(device)
+            outputs = model(texts)
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    
+    print(f"Test Accuracy: {correct / total:.4f}")
+
+# Main function
+def main():
+    # Paths
+    model_path = "saved_model.pth"
+    test_data_path = "test.csv"
+
+    # Load tokenizer and vocab from training
+    tokenizer = get_tokenizer("basic_english")
+    train_data_path = "train.csv"
+    train_dataset = TwitterDataset(train_data_path, tokenizer=tokenizer)
+    vocab = train_dataset.vocab
+
+    # Load test dataset
+    test_dataset = TwitterDataset(test_data_path, vocab=vocab, tokenizer=tokenizer)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+
+    # Load model
+    vocab_size = len(vocab)
+    model = LSTMClassifier(vocab_size, embed_size=128, hidden_size=128, output_size=3)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    
+    # Run test
+    test(model, test_loader, device)
+
+if __name__ == "__main__":
+    main()
+
+
+## 문제9
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+def compute_doc_pair_similarity(vector1, vector2):
+    """
+    두 문서 벡터 사이의 유사도를 계산합니다.
+    여기서는 코사인 유사도를 사용합니다.
+    """
+    similarity = cosine_similarity([vector1], [vector2])
+    return similarity[0][0]
+
+def make_vector_space_model_tf_idf(corpus):
+    """
+    주어진 문서 리스트(corpus)를 기반으로 TF-IDF 벡터 공간 모델을 생성합니다.
+    """
+    tfidf_vectorizer = TfidfVectorizer()
+    tfidf_matrix = tfidf_vectorizer.fit_transform(corpus)  # TF-IDF 행렬 생성
+    return tfidf_matrix.toarray()  # 행렬을 numpy 배열로 반환
+
+def create_similarity_matrix(corpus):
+    """
+    문서 간 유사도를 계산하여 문서 x 문서 유사도 행렬을 생성합니다.
+    """
+    # TF-IDF 가중치를 가진 벡터 공간 모델 생성
+    tfidf_matrix = make_vector_space_model_tf_idf(corpus)
+    num_docs = len(corpus)
+    similarity_matrix = np.zeros((num_docs, num_docs))  # 초기화된 유사도 행렬
+
+    # 문서 간 유사도 계산
+    for i in range(num_docs):
+        for j in range(num_docs):
+            similarity_matrix[i][j] = compute_doc_pair_similarity(tfidf_matrix[i], tfidf_matrix[j])
+    
+    return similarity_matrix
+
+if __name__ == "__main__":
+    # 파일에서 데이터를 읽어옵니다.
+    file_path = "data/news.txt"
+    with open(file_path, "r", encoding="utf-8") as f:
+        corpus = [line.strip() for line in f.readlines()]
+
+    # 유사도 행렬 생성
+    similarity_matrix = create_similarity_matrix(corpus)
+
+    # 결과 출력
+    print("문서 간 유사도 행렬:")
+    print(similarity_matrix)

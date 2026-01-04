@@ -1,0 +1,46 @@
+# 파이썬 코딩 면허 시험
+
+# 문제 17
+'''
+1. acccb: 'a'로 시작하고 'b'로 끝나지만, 중간에 점 ('.')이 없으므로 매치되지 않습니다.
+2. a....b: 'a'로 시작하고 4개의 점 ('.')이 있으며 'b'로 끝납니다. 조건에 부합합니다.
+3. aaab: 'a'로 시작하지만 점 ('.')이 전혀 없으므로 매치되지 않습니다.
+4. a.cccb: 'a'로 시작하고 중간에 점이 있지만 3개 이상이 아니므로 매치되지 않습니다.
+'''
+
+# 문제 18
+import re
+p = re.compile("[a-z]+")
+m = p.search("5 python")
+print(m.start() + m.end())
+
+# 문제 19
+import re
+
+text = """
+park 010-9999-9998
+kim 010-9909-7789
+lee 010-8789-7768
+"""
+
+pattern = re.compile(r"(\d{3}-\d{4})-\d{4}")
+result = pattern.sub(r"\1-####", text)
+
+print(result)
+
+# 문제 20
+import re
+
+emails = """
+park@naver.com
+kim@daum.net
+lee@myhome.co.kr
+john@example.org
+"""
+
+pattern = re.compile(r".*[@].*(?=\.com$|\.net$)", re.MULTILINE)
+
+matches = pattern.findall(emails)
+
+print(matches)
+

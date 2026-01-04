@@ -1,0 +1,62 @@
+<join>
+[select 칼럼
+from 테이블A
+join 테이블B
+on 테이블A.기준 = 테이블B.기준]
+
+[select 칼럼
+from 테이블A
+join 테이블B
+on 테이블A.기준 = 테이블B.기준
+join 테이블C
+on 테이블A.기준 = 테이블C.기준]
+
+order : userId, productId
+user : userId
+product : id
+*user와 product끼리는 조인할 수 없다. 기준이 될 데이터가 없다.
+
+---
+* 제약조건은 한 쿼리로 주도록 합니다. 그래야 조건이 빠지지 않습니다.
+예) ALTER TABLE `test` MODIFY COLUMN `id` INT UNSIGNED PRIMARY KEY;
+
+---
+
+<집합연산자>
+select문 결과를 집합하는 연산.
+조건: 칼럼수가 같아야함
+
+union : 합집합. 중복제거
+union all : 합집합. 중복 보여줌
+intersect : 교집합.
+
+[select 절
+union
+select 절]
+
+
+---
+<서브쿼리>
+sql문 안에 포함되어 있는 또 다른 sql문.
+alias를 보통 같이 쓴다.
+
+- 서브쿼리 가능한 위치
+select절 (결과 한개인 서브쿼리만 가능) : 스칼라 서브쿼리
+from절 : 인라인뷰 서브쿼리
+where절
+having절
+insert의 value절
+update의 set절
+
+group by절 서브쿼리 X
+
+예)
+SELECT * , (SELECT pname FROM t_shopping WHERE price = 100000) AS subqry
+FROM `product`;
+
+SELECT * ,subqry.userName
+FROM (SELECT * FROM t_shopping) AS subqry;
+
+SELECT *
+FROM `product`
+WHERE price > (SELECT AVG(price) FROM t_shopping);

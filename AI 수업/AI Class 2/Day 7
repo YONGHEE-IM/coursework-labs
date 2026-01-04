@@ -1,0 +1,158 @@
+import numpy as np
+import pandas as pd
+
+# practice-pandas_3_다른유형
+
+# 문제1
+df1 = pd.DataFrame(data)
+df1
+
+# 문제2
+df1['C'] = C
+df1['D'] = D
+
+df1
+
+# 문제3
+column_sums = df1.sum()
+
+# 문제4
+row_sums = df1.sum(axis=1)
+
+# 문제5
+extracted_rows = df1.loc[2:4, ['A', 'B', 'D']]
+
+# 문제 6 
+df1['K'] = df1['B'] * 3
+
+# 문제 7
+df1['R'] = np.random.rand(len(df1))
+
+# 문제 8
+df1.loc[[1, 3, 5], 'C'] = 6
+
+df1
+
+# 문제 9
+df_score = pd.read_csv('score.txt', header=0)
+
+print(df_score.columns)
+
+df_score.rename(columns={'#국어': '국어'}, inplace=True)
+
+print(df_score.columns)
+
+df_score.to_csv('modified_score.txt', index=False)
+
+# 문제10
+print(df_score.head(5))
+
+# 문제11
+print(df_score.tail(10))
+
+# 문제12
+df_korean_90 = df_score[df_score['국어'] >= 90]
+print(df_korean_90)
+
+# 문제13
+df_score = df_score.applymap(lambda x: np.nan if x <= 10 else x)
+
+# 문제14
+print(df_score.isnull().sum())
+
+# 문제15
+thershold = len(df_score) * 0.2
+df_score_20 = df_score.loc[:, df_score.isnull().sum() <= thershold]
+
+print(df_score_20)
+
+# 문제16
+
+## (1)
+df.sort_index(axis=1, ascending=True)
+
+## (2)
+df.sort_index(axis=1, ascending=False)
+
+## (3)
+df.sort_values(by='B', ascending=True)
+
+# practice-pandas_4
+
+import numpy as np
+import pandas as pd
+
+np.set_printoptions(precision=6, suppress=True)
+PREVIOUS_MAX_ROWS = pd.options.display.max_rows # 원래 60이 기본.
+pd.options.display.max_rows = 20
+
+data_url = "http://lib.stat.cmu.edu/datasets/boston"
+raw_df = pd.read_csv(data_url, sep="\s+", skiprows=22, header=None)
+X = np.hstack([raw_df.values[::2, :], raw_df.values[1::2, :2]])
+target = raw_df.values[1::2, 2]
+
+type(X)
+
+X.ndim
+
+X
+
+# 문제 1
+
+# 563 개의 데이터 샘플 포함. 각 샘플은 13개의 특성을 가짐. 즉, 13개의 열 존재.
+
+boston = X
+
+boston.columns
+
+feature_names = np.array(['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD',
+                           'TAX', 'PTRATIO', 'B', 'LSTAT'], dtype='<U7')
+
+boston = pd.DataFrame(X, columns=feature_names)
+boston
+
+boston.info()
+
+boston['RM'][100:105] = np.nan
+
+# 문제 2
+assert boston.isnull().sum().sum() == 5
+
+# 문제 3
+mask = boston.isnull().any(axis=1)
+boston_with_nan = boston[mask].copy()
+
+boston_with_nan
+
+assert boston_with_nan.shape == (5, 13)
+
+# 문제 4
+boston_without_nan = boston[~mask].copy()
+
+assert boston_without_nan.shape == (501, 13)
+
+# 문제 5
+rm_mean = boston["RM"].mean()
+boston_with_nan.fillna(rm_mean, inplace=True)
+
+boston_with_nan.isnull().any()
+
+boston_with_nan.isnull().any().any()
+
+assert boston_with_nan.isnull().any().any() == False
+
+# 문제 6
+boston["AGE_year"] = boston.AGE.astype(int)
+
+assert boston.AGE_year.dtype == 'int64'
+
+# 문제 7
+boston.drop(["AGE"], axis=1, inplace=True)
+
+assert('AGE' in boston.columns) == False
+
+
+
+
+
+

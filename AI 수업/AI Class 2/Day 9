@@ -1,0 +1,289 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+## matplotlib.pyplot 1부
+
+from sklearn.datasets import load_iris
+
+iris = load_iris(as_frame=True)
+
+type(iris)
+
+iris.keys()
+
+iris.data # iris['data']
+
+iris.target # iris['target']
+
+X = iris.data[["petal length (cm)", "petal width (cm)"]].values
+y = iris.target.values
+
+mask_setosa = (y == 0)
+X_setosa = X[mask_setosa]
+
+X_setosa.shape
+
+mask_versicolor = (y == 1)
+X_versicolor = X[mask_versicolor]
+
+mask_verginica = (y == 2)
+X_verginica = X[mask_verginica]
+
+# 각 데이터셋의 산점도를 다른 색을 이용하여 그리면 다음과 같다.
+plt.plot(X_setosa[:, 0], X_setosa[:, 1], "yo", label="Iris setosa")             # 노랑 원
+plt.plot(X_versicolor[:, 0], X_versicolor[:, 1], "bs", label="Iris versicolor") # 파랑 네모
+plt.plot(X_verginica[:, 0], X_verginica[:, 1], "r^", label="Iris verginica")    # 빨강 세모
+
+plt.xlabel("Petal length")
+plt.ylabel("Petal width")
+plt.legend(loc="upper left")
+
+plt.show()
+
+# 범위를 x 축은 0에서 7.5 사이로, y 축은 0에서 3 사이로 지정한 다음에 축의 척도를 일치 시키면 그림이 사뭇 다르게 보인다.
+plt.plot(X[:, 0][y == 0], X[:, 1][y == 0], "yo", label="Iris setosa")     # 노랑 원
+plt.plot(X[:, 0][y == 1], X[:, 1][y == 1], "bs", label="Iris versicolor") # 파랑 네모
+plt.plot(X[:, 0][y == 2], X[:, 1][y == 2], "r^", label="Iris verginica")  # 빨강 세모
+
+plt.xlabel("Petal length")
+plt.ylabel("Petal width")
+plt.legend(loc="upper left")
+
+plt.axis([0, 7.5, 0, 3])
+plt.gca().set_aspect("equal")
+
+plt.show()
+
+# 격자 무늬 배경도 추가하자.
+plt.plot(X[:, 0][y == 0], X[:, 1][y == 0], "yo", label="Iris setosa")     # 노랑 원
+plt.plot(X[:, 0][y == 1], X[:, 1][y == 1], "bs", label="Iris versicolor") # 파랑 네모
+plt.plot(X[:, 0][y == 2], X[:, 1][y == 2], "rs", label="Iris verginica")  # 빨강 세모
+
+plt.xlabel("Petal length")
+plt.ylabel("Petal width")
+plt.legend(loc="upper left")
+
+plt.axis([0, 7.5, 0, 3])
+plt.gca().set_aspect("equal")
+plt.grid()
+
+plt.show()
+
+# 아래 코드는 두 개의 직선을 그린다.
+# x 좌표
+x0 = np.linspace(0, 7.5, 200) # 0부터 7.5 사이를 200개의 작은 구간으로 균등하게 쪼갠 x 좌표값
+
+# 두 개의 직선에 대한 y 좌표값
+pred_1 = 5 * x0 - 12  # 직선 1의 y 좌표
+pred_2 = -x0 + 6.5    # 직선 2의 y 좌표
+
+plt.plot(x0, pred_1, "g--", linewidth=2) # 직선 1
+plt.plot(x0, pred_2, "m-.", linewidth=2) # 직선 2
+
+plt.axis([0, 7.5, 0, 3])
+plt.gca().set_aspect("equal")
+plt.grid()
+
+plt.show()
+
+# 위 두 직선과 붓꽃 데이터셋의 산포도를 합치면 품종을 구별하는 경계선을 얻는다.
+x0 = np.linspace(0, 7.5, 200)
+pred_1 = 5 * x0 - 12
+pred_2 = -x0 + 6.5
+pred_3 = 0.05 * x0 + 0.6
+
+plt.plot(x0, pred_1, "g--", linewidth=2)
+plt.plot(x0, pred_2, "m-.", linewidth=2)
+# plt.plot(x0, pred_3, "y-", linewidth=2)
+
+plt.plot(X[:, 0][y==0], X[:, 1][y==0], "yo", label="Iris setosa")     # 노랑 원
+plt.plot(X[:, 0][y==1], X[:, 1][y==1], "bs", label="Iris versicolor") # 파랑 네모
+plt.plot(X[:, 0][y==2], X[:, 1][y==2], "rs", label="Iris verginica")  # 빨강 세모
+plt.xlabel("Petal length")
+plt.ylabel("Petal width")
+plt.legend(loc="upper left")
+plt.axis([0, 7.5, 0, 3])
+plt.gca().set_aspect("equal")
+plt.grid()
+
+plt.show()
+
+## matplotlib.pyplot 2부
+from sklearn.datasets import load_iris
+
+iris = load_iris() # load_iris(as_frane=False)
+X = iris.data
+y = iris.target
+
+type(iris)
+
+type(X)
+
+X[:5]
+
+type(y)
+
+y[:5]
+
+iris.target_names
+
+# 품종별 다른 색상으로 산점도를 그리기 위해 부울 인덱싱과 인덱싱을 함께 사용한다.
+plt.plot(X[y==0, 2], X[y==0, 3], "yo", label="Iris setosa")
+plt.plot(X[y==1, 2], X[y==1, 3], "bs", label="Iris versicolor")
+plt.plot(X[y==2, 2], X[y==2, 3], "g^", label="Iris virginica")
+
+plt.xlabel("Petal length")
+plt.ylabel("Petal width")
+plt.legend()
+plt.grid()
+
+plt.show()
+
+# 군집화
+plt.scatter(X[y==0, 2], X[y==0, 3], c="k", marker=".")
+plt.scatter(X[(y==1) | (y==2), 2], X[(y==1) | (y==2), 3], c="b", marker=".")
+
+plt.xlabel("Petal length")
+plt.ylabel("Petal width")
+plt.grid()
+
+plt.show()
+
+# 방식 1: Figure 객체의 add_subplot() 메서드 활용
+plt.rc('figure', figsize=(10, 6))
+
+fig = plt.figure()
+
+ax1 = fig.add_subplot(2, 2, 1)
+ax2 = fig.add_subplot(2, 2, 2)
+ax3 = fig.add_subplot(2, 2, 3)
+ax4 = fig.add_subplot(2, 2, 4)
+
+ax1.plot(X[y==0, 2], X[y==0, 3], "yo", label="Iris setosa")
+ax1.plot(X[y==1, 2], X[y==1, 3], "bs", label="Iris versicolor")
+ax1.plot(X[y==2, 2], X[y==2, 3], "g^", label="Iris virginica")
+ax1.set_ylabel("Petal width")
+ax1.tick_params(labelbottom=False)
+ax1.legend()
+
+ax2.scatter(X[y==0, 2], X[y==0, 3], c="k", marker=".")
+ax2.scatter(X[(y==1) | (y==2), 2], X[(y==1) | (y==2), 3], c="b", marker=".")
+ax2.tick_params(labelleft=False, labelbottom=False)
+
+ax3.plot(X[y==0, 2], X[y==0, 3], "yo", label="Iris setosa")
+ax3.plot(X[y==1, 2], X[y==1, 3], "bs", label="Iris versicolor")
+ax3.plot(X[y==2, 2], X[y==2, 3], "g^", label="Iris virginica")
+ax3.set_xlabel("Petal length")
+ax3.set_ylabel("Petal width")
+ax3.grid()
+
+ax4.scatter(X[y==0, 2], X[y==0, 3], c="k", marker=".")
+ax4.scatter(X[(y==1) | (y==2), 2], X[(y==1) | (y==2), 3], c="b", marker=".")
+ax4.set_xlabel("Petal length")
+ax4.tick_params(labelleft=False)
+ax4.grid()
+
+fig.subplots_adjust(wspace=0.07, hspace=0.12) # 상하좌우 여백
+# plt.subplots_adjust(wspace=0.07, hspace=0.12) # 상하좌우 여백
+
+plt.show()
+
+# 방식 2: plt.subplots() 함수와 Axes 객체 활용
+plt.rc('figure', figsize=(10, 6))
+
+fig, axes = plt.subplots(2, 2, sharex=True, sharey=True)
+
+axes[0, 0].plot(X[y==0, 2], X[y==0, 3], "yo", label="Iris setosa")
+axes[0, 0].plot(X[y==1, 2], X[y==1, 3], "bs", label="Iris versicolor")
+axes[0, 0].plot(X[y==2, 2], X[y==2, 3], "g^", label="Iris virginica")
+axes[0, 0].set_ylabel("Petal width")
+axes[0, 0].legend()
+
+axes[0, 1].scatter(X[y==0, 2], X[y==0, 3], c="k", marker=".")
+axes[0, 1].scatter(X[(y==1) | (y==2), 2], X[(y==1) | (y==2), 3], c="b", marker=".")
+
+axes[1, 0].plot(X[y==0, 2], X[y==0, 3], "yo", label="Iris setosa")
+axes[1, 0].plot(X[y==1, 2], X[y==1, 3], "bs", label="Iris versicolor")
+axes[1, 0].plot(X[y==2, 2], X[y==2, 3], "g^", label="Iris virginica")
+axes[1, 0].set_xlabel("Petal length")
+axes[1, 0].set_ylabel("Petal width")
+axes[1, 0].grid()
+
+axes[1, 1].scatter(X[y==0, 2], X[y==0, 3], c="k", marker=".")
+axes[1, 1].scatter(X[(y==1) | (y==2), 2], X[(y==1) | (y==2), 3], c="b", marker=".")
+axes[1, 1].set_xlabel("Petal length")
+axes[1, 1].grid()
+
+fig.subplots_adjust(wspace=0.07, hspace=0.12) # 상하좌우 여백
+# plt.subplots_adjust(wspace=0.07, hspace=0.12) # 상하좌우 여백
+
+plt.show()
+
+# 방식 3: plt.subplot() 함수와 Axes 객체 활용
+plt.figure(figsize=(10, 6))
+
+plt.subplot(221)
+plt.plot(X[y==0, 2], X[y==0, 3], "yo", label="Iris setosa")
+plt.plot(X[y==1, 2], X[y==1, 3], "bs", label="Iris versicolor")
+plt.plot(X[y==2, 2], X[y==2, 3], "g^", label="Iris virginica")
+plt.ylabel("Petal width")
+plt.tick_params(labelbottom=False)
+plt.legend()
+
+plt.subplot(222)
+plt.scatter(X[y==0, 2], X[y==0, 3], c="k", marker=".")
+plt.scatter(X[(y==1) | (y==2), 2], X[(y==1) | (y==2), 3], c="b", marker=".")
+plt.tick_params(labelleft=False, labelbottom=False)
+
+plt.subplot(223)
+plt.plot(X[y==0, 2], X[y==0, 3], "yo", label="Iris setosa")
+plt.plot(X[y==1, 2], X[y==1, 3], "bs", label="Iris versicolor")
+plt.plot(X[y==2, 2], X[y==2, 3], "g^", label="Iris virginica")
+plt.xlabel("Petal length")
+plt.ylabel("Petal width")
+plt.grid()
+
+plt.subplot(224)
+plt.scatter(X[y==0, 2], X[y==0, 3], c="k", marker=".")
+plt.scatter(X[(y==1) | (y==2), 2], X[(y==1) | (y==2), 3], c="b", marker=".")
+plt.xlabel("Petal length")
+plt.tick_params(labelleft=False)
+plt.grid()
+
+plt.subplots_adjust(wspace=0.07, hspace=0.12) # 상하좌우 여백
+
+plt.show()
+
+# 다음과 같이 Axes 객체를 변수에 할당하고 활용할 수도 있다.
+plt.figure(figsize=(10, 6))
+
+ax1 = plt.subplot(221)
+ax1.plot(X[y==0, 2], X[y==0, 3], "yo", label="Iris setosa")
+ax1.plot(X[y==1, 2], X[y==1, 3], "bs", label="Iris versicolor")
+ax1.plot(X[y==2, 2], X[y==2, 3], "g^", label="Iris virginica")
+ax1.set_ylabel("Petal width")
+ax1.tick_params(labelbottom=False)
+ax1.legend()
+
+ax2 = plt.subplot(222)
+ax2.scatter(X[:, 2], X[:, 3], c="k", marker=".")
+ax2.tick_params(labelleft=False, labelbottom=False)
+
+ax3 = plt.subplot(223)
+ax3.plot(X[y==0, 2], X[y==0, 3], "yo", label="Iris setosa")
+ax3.plot(X[y==1, 2], X[y==1, 3], "bs", label="Iris versicolor")
+ax3.plot(X[y==2, 2], X[y==2, 3], "g^", label="Iris virginica")
+ax3.set_xlabel("Petal length")
+ax3.set_ylabel("Petal width")
+ax3.grid()
+
+ax4 = plt.subplot(224)
+ax4.scatter(X[:, 2], X[:, 3], c="k", marker=".")
+ax4.set_xlabel("Petal length")
+ax4.tick_params(labelleft=False)
+ax4.grid()
+
+plt.subplots_adjust(wspace=0.07, hspace=0.12) # 상하좌우 여백
+
+plt.show()
+

@@ -1,0 +1,35 @@
+group by : 결과집합을 그룹화. where절에 의해 리턴된 행들을 대상으로 한다.
+고로, where절 다음에 쓰인다.
+
+having : group by 짝꿍. 그룹화된 결과에 조건을 준다는 점에서 where절과 차이를 보인다.
+
+집계함수 : count, sum, avg, max, min, stddev, varian
+* select, having, order by절 사용가능
+* where절 사용불가
+
+---
+<실행순서>
+* select문 실행순서
+
+from
+where
+group by
+having
+select
+order by
+
+
+---
+id(키) : 테이블 기본값. 사용자 몰라야 하고. 개발자를 위한 고유값. pk, auto_increment
+
+
+---
+<join>
+2개 이상의 테이블을 연결 또는 결합하여 데이터를 출력하는 것.
+
+테이블끼지는 서로 인식될 수 있는 기준 데이터 필요. (식별키)
+
+[select 칼럼
+from 테이블A
+join 테이블B
+on 테이블A.기준 = 테이블B.기준]

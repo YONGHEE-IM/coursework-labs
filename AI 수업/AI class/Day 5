@@ -1,0 +1,150 @@
+class BlackBox:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+b1 = BlackBox('까망이', 200000)
+print(b1.name, b1.price)
+
+b2 = BlackBox('하양이', 100000)
+print(b2.name, b2.price)
+
+class BlackBox:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+        
+    def set_travel_mode(self, min): # 여행 모드 시간 (분)
+        print(str(min) + '분 동안 여행 모드 ON')
+
+b1 = BlackBox('까망이', 200000)
+b1.set_travel_mode(20)
+
+num1 = 3
+num2 = 0
+
+try:
+    result = num1 / num2
+    print(f'연산 결과는 {result}입니다')
+except ZeroDivisionError:
+    print('0으로 나눌 수 없어요')
+except Exception as err:
+    print('에러가 발생했어요 : ', err)
+else:
+    print('정상 동작했어요')
+finally:
+    print('수행 종료')
+
+
+num1 = 3
+num2 = '0'
+
+try:
+    result = num1 / num2
+    print(f'연산 결과는 {result}입니다')
+except ZeroDivisionError:
+    print('0으로 나눌 수 없어요')
+except Exception as err:
+    print('에러가 발생했어요 : ', err)
+else:
+    print('정상 동작했어요')
+finally:
+    print('수행 종료')
+
+from nado import goodjob
+goodjob.say()
+
+import random
+
+my_list = ['가위', '바위', '보']
+print(random.choice(my_list))
+
+
+# 문제1
+class Calculator:
+    def __init__(self):
+        self.value = 0
+
+    def add(self, val):
+        self.value += val
+
+class UpgradeCalculator(Calculator):
+    def minus(self, val):
+        self.value -= val
+
+cal = UpgradeCalculator()
+cal.add(10)
+cal.minus(7)
+
+print(cal.value)
+
+# 문제2
+class Calculator:
+    def __init__(self):
+        self.value = 0
+
+    def add(self, val):
+        self.value += val
+
+class MaxLimitCalculator(Calculator):
+    def add(self, val):
+        super().add(val)
+        if self.value > 100:
+            self.value = 100
+
+cal = MaxLimitCalculator()
+cal.add(50)
+cal.add(60)
+
+print(cal.value)
+
+# 문제4
+numbers = [1, -2, 3, -5, 8, -3]
+positive_numbers = list(filter(lambda x: x > 0, numbers))
+
+print(positive_numbers)
+
+# 문제5
+hex_str = '0xea'
+decimal = int(hex_str, 16)
+
+print(decimal)
+
+# 문제6
+nums = [1,2,3,4]
+result = list(map(lambda x: x * 3, nums))
+
+print(result)
+
+# 문제7
+numbers1 = [-8,2,7,5,-3,5,0,1]
+max_value = max(numbers1)
+min_value = min(numbers1)
+result1 = max_value + min_value
+
+print(result1)
+
+# 문제8
+result2 = 17 / 3
+rounded_result2 = round(result2, 4)
+
+print(rounded_result2)
+
+
+# 문제 12
+import time
+
+current_time = time.localtime()
+
+formatted_time = time.strftime('%Y%m%d %H:%M:%S', current_time)
+
+print(formatted_time)
+
+# 문제 13
+import random
+
+lotto_numbers = random.sample(range(1, 46), 6)
+
+lotto_numbers.sort()
+
+print(lotto_numbers)

@@ -1,0 +1,175 @@
+## 문제 1
+import re
+
+# 리뷰 데이터를 저장할 리스트
+documents = []
+
+# 정규표현식 변수 (예시로 숫자와 특수문자 제거하는 정규표현식 사용)
+regex = r"[^a-zA-Z\s]"
+
+# text.txt 파일을 읽어서 리뷰 데이터를 documents 리스트에 추가
+with open('text.txt', 'r', encoding='utf-8') as file:
+    for line in file:
+        cleaned_review = re.sub(regex, '', line.strip().lower())  # 정규표현식으로 전처리
+        documents.append(cleaned_review)
+
+from sklearn.feature_extraction.text import CountVectorizer
+
+# CountVectorizer 객체 생성
+vectorizer = CountVectorizer()
+
+# Bag of Words 문서 행렬 생성
+X = vectorizer.fit_transform(documents)
+
+# 문서 행렬의 차원 저장
+dim = X.shape
+
+# 단어 목록 가져오기
+words_feature = vectorizer.get_feature_names_out()[:10]
+
+# "comedy" 단어의 칼럼 인덱스 조회
+idx = vectorizer.vocabulary_.get("comedy")
+
+# 첫 번째 문서의 Bag of Words 벡터
+vec1 = X[0]
+
+## 문제 2
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# TfidfVectorizer 객체 생성
+tfidf_vectorizer = TfidfVectorizer()
+# TF-IDF 기반 Bag of Words 문서 행렬 생성
+X = tfidf_vectorizer.fit_transform(documents)
+dim1 = X.shape  # TF-IDF 문서 행렬의 차원 저장
+vec1 = X[0]     # 첫 번째 문서의 TF-IDF 벡터 저장
+
+# TfidfVectorizer 객체 생성 (Unigram과 Bigram 사용)
+tfidf_ngram_vectorizer = TfidfVectorizer(ngram_range=(1, 2))
+# TF-IDF 기반 Bag of N-grams 문서 행렬 생성
+X_ngram = tfidf_ngram_vectorizer.fit_transform(documents)
+dim2 = X_ngram.shape  # TF-IDF N-grams 문서 행렬의 차원 저장
+
+## 문제 3
+import pickle
+from sklearn.metrics.pairwise import cosine_similarity
+
+# pickle 파일 열기
+with open('bow_models.pkl', 'rb') as f:
+    vectorizer, X = pickle.load(f)
+
+# 문서 1과 문서 2
+sent1 = "Your first document here."
+sent2 = "Your second document here."
+
+# 벡터 생성
+vec1 = vectorizer.transform([sent1])
+vec2 = vectorizer.transform([sent2])
+
+# vec1과 vec2의 코사인 유사도 계산
+sim1 = cosine_similarity(vec1, vec2)
+
+# vec1과 첫 번째 문서 벡터 간의 코사인 유사도 계산
+sim2 = cosine_similarity(vec1, X[0])
+
+# 결과 출력
+print("Cosine similarity between sent1 and sent2:", sim1)
+print("Cosine similarity between sent1 and first document:", sim2)
+
+
+## 문제 4
+from gensim.models import Doc2Vec
+from gensim.models.doc2vec import TaggedDocument
+from sklearn.metrics.pairwise import cosine_similarity
+
+# load_data() 함수로 IMDB 데이터셋 불러오기
+documents = load_data()
+
+# 벡터 간 코사인 유사도 계산 함수
+def cal_cosine_sim(vector1, vector2):
+    return cosine_similarity([vector1], [vector2])[0][0]
+
+# documents 데이터를 TaggedDocument 형식으로 변환
+tagged_data = [TaggedDocument(words=doc.split(), tags=[str(i)]) for i, doc in enumerate(documents)]
+
+# Doc2Vec 모델 학습
+model = Doc2Vec(vector_size=50, window=2, min_count=1, workers=4, epochs=5)
+model.build_vocab(tagged_data)
+model.train(tagged_data, total_examples=model.corpus_count, epochs=model.epochs)
+
+# 문서 doc1과 doc2 임베딩 벡터 생성
+doc1 = "Your first document here."
+doc2 = "Your second document here."
+
+vector1 = model.infer_vector(doc1.split())
+vector2 = model.infer_vector(doc2.split())
+
+# 문서 간 코사인 유사도 계산
+sim = cal_cosine_sim(vector1, vector2)
+
+print("Cosine similarity between doc1 and doc2:", sim)
+
+
+## 문제 5
+from collections import Counter
+
+# Unigram의 빈도수를 계산하여 반환하는 함수
+def count_unigram(doc):
+    words = doc.split()
+    unigram_counter = Counter(words)
+    return unigram_counter
+
+# Bigram의 빈도수를 계산하여 반환하는 함수
+def count_bigram(doc):
+    words = doc.split()
+    bigrams = [(words[i], words[i+1]) for i in range(len(words)-1)]
+    bigram_counter = Counter(bigrams)
+    return bigram_counter
+
+# 문장의 발생 확률을 계산하는 함수
+def cal_prob(sentence, unigram_counter, bigram_counter):
+    words = sentence.split()
+    prob = 1.0
+    
+    # Unigram 확률 계산 (단어의 확률)
+    for word in words:
+        prob *= unigram_counter[word] / sum(unigram_counter.values())
+    
+    # Bigram 확률 계산 (단어 쌍의 확률)
+    for i in range(1, len(words)):
+        prob *= bigram_counter[(words[i-1], words[i])] / unigram_counter[words[i-1]]
+    
+    return prob
+
+# 예시 문서 (여러 개의 문서가 있을 수 있음)
+document = "this is a test document and this is elice"
+
+# Unigram 및 Bigram 빈도수 계산
+unigram_counter = count_unigram(document)
+bigram_counter = count_bigram(document)
+
+# 문장 확률 계산
+sentence = "this is elice"
+result = cal_prob(sentence, unigram_counter, bigram_counter)
+
+print(f"The probability of the sentence '{sentence}' is: {result}")
+
+## 문제 6
+import tensorflow as tf
+
+# 모델과 체크포인트 경로 설정
+checkpoint_path = 'checkpoints'
+
+# 가장 최근에 저장된 체크포인트 파일 경로 불러오기
+checkpoint_file = tf.train.latest_checkpoint(checkpoint_path)
+
+# 모델 파라미터 불러오기
+model.load_weights(checkpoint_file)
+
+# 텍스트 생성 함수 사용
+result = generate_text(model, "Juliet: ")
+
+# 결과 출력
+print(result)
+
+
+

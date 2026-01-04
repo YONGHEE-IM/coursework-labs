@@ -1,0 +1,271 @@
+## 문제 1
+from PIL import Image
+
+# Load the uploaded image to verify it
+image_path = "/mnt/data/image.png"
+image = Image.open(image_path)
+image.show()
+
+def intersection_over_union(box1, box2):
+    """
+    Calculate the Intersection over Union (IoU) of two bounding boxes.
+
+    Parameters:
+        box1: tuple (x1, y1, x2, y2) for the first box
+        box2: tuple (x1, y1, x2, y2) for the second box
+
+    Returns:
+        IoU: float, Intersection over Union value
+    """
+    # Extract coordinates
+    x1, y1, x2, y2 = box1
+    x3, y3, x4, y4 = box2
+
+    # Calculate the coordinates of the intersection box
+    inter_x1 = max(x1, x3)
+    inter_y1 = max(y1, y3)
+    inter_x2 = min(x2, x4)
+    inter_y2 = min(y2, y4)
+
+    # Compute the area of intersection
+    inter_width = max(0, inter_x2 - inter_x1)
+    inter_height = max(0, inter_y2 - inter_y1)
+    inter_area = inter_width * inter_height
+
+    # Compute the area of both bounding boxes
+    area_box1 = (x2 - x1) * (y2 - y1)
+    area_box2 = (x4 - x3) * (y4 - y3)
+
+    # Compute the union area
+    union_area = area_box1 + area_box2 - inter_area
+
+    # Compute IoU
+    iou = inter_area / union_area if union_area != 0 else 0
+
+    return iou
+
+# Define the coordinates for the red and green boxes
+# Red box: (100, 100, 170, 180)
+# Green box: (130, 140, 250, 300)
+red_box = (100, 100, 170, 180)
+green_box = (130, 140, 250, 300)
+
+# Calculate IoU
+iou_result = intersection_over_union(red_box, green_box)
+iou_result
+
+
+## 문제 2
+from sklearn.metrics import auc
+
+# Example average_precision function
+def average_precision(detection_results, ground_truth):
+    """
+    Calculate the Average Precision (AP) for detection results.
+
+    Parameters:
+        detection_results: list of tuples (IoU, confidence) sorted by confidence in descending order
+        ground_truth: int, number of actual objects of the class (ground truth)
+
+    Returns:
+        AP: float, Average Precision value
+    """
+    thresholds = [result[1] for result in detection_results]  # Confidence values as thresholds
+    precision, recall = [], []
+
+    for threshold in thresholds:
+        # Filter detections above the threshold
+        filtered_results = [result for result in detection_results if result[1] >= threshold]
+        detected = len(filtered_results)  # Total detections above threshold
+        tp = len([result for result in filtered_results if result[0] >= 0.5])  # True Positives
+        
+        # Avoid division by zero for precision
+        if detected == 0:
+            precision.append(1)
+        else:
+            precision.append(tp / detected)
+
+        recall.append(tp / ground_truth)  # Recall calculation
+
+    # Use sklearn.metrics.auc to compute Average Precision
+    ap = auc(recall, precision)
+    return ap
+
+# Detection results (IoU, confidence) - example data from the question's chart
+detection_results = [
+    (0.9, 0.99), (0.85, 0.97), (0.8, 0.96), (0.75, 0.94), 
+    (0.7, 0.93), (0.65, 0.91), (0.6, 0.9), (0.55, 0.89), 
+    (0.5, 0.88), (0.45, 0.85), (0.4, 0.8), (0.35, 0.75),
+    (0.3, 0.7), (0.25, 0.65), (0.2, 0.6), (0.15, 0.55)
+]
+
+# Ground truth (number of actual objects)
+ground_truth = 16
+
+# Calculate AP
+average_precision_value = average_precision(detection_results, ground_truth)
+average_precision_value
+
+
+## 문제 3
+import numpy as np
+
+def iou(box1, box2):
+    '''
+    두 박스 간 IoU 계산
+    '''
+    # 박스의 좌상단과 우하단 좌표
+    x1, y1 = max(box1[1], box2[1]), max(box1[2], box2[2])
+    x2, y2 = min(box1[3], box2[3]), min(box1[4], box2[4])
+
+    # 교집합 넓이 계산
+    intersection = max(0, x2 - x1 + 1) * max(0, y2 - y1 + 1)
+
+    # 각 박스의 넓이 계산
+    area1 = (box1[3] - box1[1] + 1) * (box1[4] - box1[2] + 1)
+    area2 = (box2[3] - box2[1] + 1) * (box2[4] - box2[2] + 1)
+
+    # 합집합 넓이 계산
+    union = area1 + area2 - intersection
+
+    # IoU 계산
+    return intersection / union
+
+def non_max_suppression(boxes, iou_threshold):
+    """
+    Non-Maximum Suppression 수행
+    :param boxes: numpy.array([[confidence, tl_x, tl_y, br_x, br_y], ...])
+    :param iou_threshold: IoU threshold
+    :return: 중복 제거된 박스 리스트
+    """
+    # 박스 점수 내림차순 정렬
+    boxes = boxes[boxes[:, 0].argsort()[::-1]]
+    
+    selected_boxes = []
+    
+    while len(boxes) > 0:
+        # 현재 가장 높은 confidence를 가진 박스를 선택
+        current_box = boxes[0]
+        selected_boxes.append(current_box)
+        
+        # 나머지 박스와의 IoU 계산
+        boxes = boxes[1:]  # 첫 박스를 제외한 나머지 박스
+        remaining_boxes = []
+        for box in boxes:
+            if iou(current_box, box) < iou_threshold:
+                remaining_boxes.append(box)
+        
+        # 남아있는 박스 리스트를 업데이트
+        boxes = np.array(remaining_boxes)
+    
+    return np.array(selected_boxes)
+
+# 테스트 데이터
+boxes = np.array([
+    [0.9, 10, 10, 50, 50],
+    [0.8, 15, 15, 55, 55],
+    [0.7, 70, 70, 120, 120],
+    [0.6, 12, 12, 52, 52]
+])
+
+# IoU 임계값
+iou_threshold = 0.5
+
+# Non-Maximum Suppression 수행
+filtered_boxes = non_max_suppression(boxes, iou_threshold)
+
+# 결과 출력
+print(f"중복 제거된 박스의 개수: {len(filtered_boxes)}")
+print("선택된 박스들:")
+print(filtered_boxes)
+
+## 문제 4
+import os
+import cv2
+import numpy as np
+import xml.etree.ElementTree as ET
+
+def voc_load_data(data_dir):
+    """
+    PASCAL VOC 데이터셋 로드 함수.
+    이미지와 라벨을 정해진 포맷으로 읽어 반환합니다.
+    
+    :param data_dir: VOC 데이터셋 디렉토리 경로
+    :return: images (N, 448, 448, 3), labels (N, 7, 7, 25)
+    """
+    image_dir = os.path.join(data_dir, 'images')
+    label_dir = os.path.join(data_dir, 'labels')
+
+    image_files = sorted([f for f in os.listdir(image_dir) if f.endswith('.jpg')])
+    label_files = sorted([f for f in os.listdir(label_dir) if f.endswith('.xml')])
+
+    images = []
+    labels = []
+
+    for image_file, label_file in zip(image_files, label_files):
+        # 이미지 로드 및 전처리
+        image_path = os.path.join(image_dir, image_file)
+        in_img = cv2.imread(image_path)
+        in_img = cv2.cvtColor(in_img, cv2.COLOR_BGR2RGB)  # RGB 포맷으로 변환
+        resized_img = cv2.resize(in_img, (448, 448))  # 크기 조정
+        normalized_img = resized_img / 255.0  # 값을 0~1 사이로 정규화
+        images.append(normalized_img)
+
+        # XML 파일 파싱 및 라벨 전처리
+        label_path = os.path.join(label_dir, label_file)
+        tree = ET.parse(label_path)
+        root = tree.getroot()
+
+        label_matrix = np.zeros((7, 7, 25))
+
+        img_width = int(root.find('size/width').text)
+        img_height = int(root.find('size/height').text)
+
+        for obj in root.findall('object'):
+            class_name = obj.find('name').text
+            class_id = get_class_id(class_name)  # class_name -> class_id 매핑 함수 필요
+
+            bbox = obj.find('bndbox')
+            xmin = int(bbox.find('xmin').text)
+            ymin = int(bbox.find('ymin').text)
+            xmax = int(bbox.find('xmax').text)
+            ymax = int(bbox.find('ymax').text)
+
+            # 바운딩 박스 중심 및 크기 계산
+            x_center = (xmin + xmax) / 2 / img_width
+            y_center = (ymin + ymax) / 2 / img_height
+            box_width = (xmax - xmin) / img_width
+            box_height = (ymax - ymin) / img_height
+
+            # 그리드 셀 계산
+            grid_x = int(x_center * 7)
+            grid_y = int(y_center * 7)
+
+            # 그리드 좌표 내 상대 위치
+            cell_x = x_center * 7 - grid_x
+            cell_y = y_center * 7 - grid_y
+
+            # 레이블 업데이트
+            if label_matrix[grid_y, grid_x, 24] == 0:  # 해당 그리드에 오브젝트가 없을 때만
+                label_matrix[grid_y, grid_x, class_id] = 1  # 클래스 원-핫 인코딩
+                label_matrix[grid_y, grid_x, 20:24] = [cell_x, cell_y, box_width, box_height]
+                label_matrix[grid_y, grid_x, 24] = 1  # 오브젝트 존재 여부
+
+        labels.append(label_matrix)
+
+    return np.array(images), np.array(labels)
+
+def get_class_id(class_name):
+    """
+    VOC 클래스 이름을 ID로 매핑
+    :param class_name: VOC 클래스 이름 (str)
+    :return: 클래스 ID (int)
+    """
+    voc_classes = [
+        "aeroplane", "bicycle", "bird", "boat", "bottle", "bus",
+        "car", "cat", "chair", "cow", "diningtable", "dog", "horse",
+        "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"
+    ]
+    return voc_classes.index(class_name)
+
+

@@ -1,0 +1,312 @@
+## 문제 1
+
+from sklearn.model_selection import train_test_split
+
+# 데이터 불러오기 및 전처리
+data = []
+with open("emotions_train.txt", "r", encoding="utf-8") as file:
+    for line in file:
+        line = line.strip()  # 줄 끝의 개행 문자 제거
+        sentence, emotion = line.split(";")  # 문장과 감정 분리
+        data.append((sentence, emotion))
+
+# 문장과 감정 분리
+sentences, emotions = zip(*data)
+
+# 학습 데이터와 평가 데이터 분할
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(sentences, emotions, test_size=0.2, random_state=7)
+
+# 출력
+total_train_sentences = len(Xtrain)
+unique_train_emotions = len(set(Ytrain))
+print(f"학습 데이터 내 문장의 개수: {total_train_sentences}")
+print(f"학습 데이터 내 감정의 종류: {unique_train_emotions}")
+
+# 평가 데이터 개수 출력
+total_test_sentences = len(Xtest)
+print(f"평가 데이터 내 문장의 개수: {total_test_sentences}")
+
+## 문제 2
+
+from sklearn.model_selection import train_test_split
+from collections import defaultdict
+
+# 데이터 불러오기 및 전처리
+data = []
+with open("emotions_train.txt", "r", encoding="utf-8") as file:
+    for line in file:
+        line = line.strip()  # 줄 끝의 개행 문자 제거
+        sentence, emotion = line.split(";")  # 문장과 감정 분리
+        data.append((sentence, emotion))
+
+# 문장과 감정 분리
+sentences, emotions = zip(*data)
+
+# 학습 데이터와 평가 데이터 분할
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(sentences, emotions, test_size=0.2, random_state=7)
+
+def cal_partial_freq(texts, emotion):
+    filtered_texts = [text for text, emo in zip(Xtrain, Ytrain) if emo == emotion]
+    partial_freq = defaultdict(int)
+    for text in filtered_texts:
+        for word in text.split():
+            partial_freq[word] += 1
+    return partial_freq
+
+def cal_total_freq(partial_freq):
+    return sum(partial_freq.values())
+
+# 특정 단어의 발생 가능도 계산
+joy_freq = cal_partial_freq(Xtrain, "joy")
+sadness_freq = cal_partial_freq(Xtrain, "sadness")
+surprise_freq = cal_partial_freq(Xtrain, "surprise")
+
+total_joy = cal_total_freq(joy_freq)
+total_sadness = cal_total_freq(sadness_freq)
+total_surprise = cal_total_freq(surprise_freq)
+
+joy_likelihood = joy_freq.get("happy", 0) / total_joy if total_joy > 0 else 0
+sad_likelihood = sadness_freq.get("happy", 0) / total_sadness if total_sadness > 0 else 0
+surprise_likelihood = surprise_freq.get("can", 0) / total_surprise if total_surprise > 0 else 0
+
+# 출력
+total_train_sentences = len(Xtrain)
+unique_train_emotions = len(set(Ytrain))
+print(f"학습 데이터 내 문장의 개수: {total_train_sentences}")
+print(f"학습 데이터 내 감정의 종류: {unique_train_emotions}")
+
+# 평가 데이터 개수 출력
+total_test_sentences = len(Xtest)
+print(f"평가 데이터 내 문장의 개수: {total_test_sentences}")
+
+# 결과 출력
+print(f"joy_likelihood: {joy_likelihood}")
+print(f"sad_likelihood: {sad_likelihood}")
+print(f"surprise_likelihood: {surprise_likelihood}")
+
+
+## 문제 3
+from sklearn.model_selection import train_test_split
+from collections import defaultdict
+import numpy as np
+
+# 데이터 불러오기 및 전처리
+data = []
+with open("emotions_train.txt", "r", encoding="utf-8") as file:
+    for line in file:
+        line = line.strip()  # 줄 끝의 개행 문자 제거
+        sentence, emotion = line.split(";")  # 문장과 감정 분리
+        data.append((sentence, emotion))
+
+# 문장과 감정 분리
+sentences, emotions = zip(*data)
+
+# 학습 데이터와 평가 데이터 분할
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(sentences, emotions, test_size=0.2, random_state=7)
+
+def cal_partial_freq(texts, emotion):
+    filtered_texts = [text for text, emo in zip(Xtrain, Ytrain) if emo == emotion]
+    partial_freq = defaultdict(int)
+    for text in filtered_texts:
+        for word in text.split():
+            partial_freq[word] += 1
+    return partial_freq
+
+def cal_total_freq(partial_freq):
+    return sum(partial_freq.values())
+
+def cal_prior_prob(data, emotion):
+    emotion_count = sum(1 for _, emo in data if emo == emotion)
+    return np.log(emotion_count / len(data))
+
+def predict_emotion(sent, data):
+    smoothing = 10
+    emotions_list = set(emotions)
+    predictions = []
+    
+    for emotion in emotions_list:
+        partial_freq = cal_partial_freq(Xtrain, emotion)
+        total_freq = cal_total_freq(partial_freq)
+        log_prob = cal_prior_prob(data, emotion)
+        
+        for word in sent.split():
+            word_freq = partial_freq.get(word, 0) + smoothing
+            log_prob += np.log(word_freq / (total_freq + smoothing * len(partial_freq)))
+        
+        predictions.append((emotion, log_prob))
+    
+    return max(predictions, key=lambda x: x[1])
+
+# 특정 단어의 발생 가능도 계산
+joy_freq = cal_partial_freq(Xtrain, "joy")
+sadness_freq = cal_partial_freq(Xtrain, "sadness")
+surprise_freq = cal_partial_freq(Xtrain, "surprise")
+
+total_joy = cal_total_freq(joy_freq)
+total_sadness = cal_total_freq(sadness_freq)
+total_surprise = cal_total_freq(surprise_freq)
+
+joy_likelihood = joy_freq.get("happy", 0) / total_joy if total_joy > 0 else 0
+sad_likelihood = sadness_freq.get("happy", 0) / total_sadness if total_sadness > 0 else 0
+surprise_likelihood = surprise_freq.get("can", 0) / total_surprise if total_surprise > 0 else 0
+
+# 감정 예측
+test_sent = "I am feeling great and happy today!"
+predicted_emotion = predict_emotion(test_sent, data)
+
+# 출력
+total_train_sentences = len(Xtrain)
+unique_train_emotions = len(set(Ytrain))
+print(f"학습 데이터 내 문장의 개수: {total_train_sentences}")
+print(f"학습 데이터 내 감정의 종류: {unique_train_emotions}")
+
+# 평가 데이터 개수 출력
+total_test_sentences = len(Xtest)
+print(f"평가 데이터 내 문장의 개수: {total_test_sentences}")
+
+# 결과 출력
+print(f"joy_likelihood: {joy_likelihood}")
+print(f"sad_likelihood: {sad_likelihood}")
+print(f"surprise_likelihood: {surprise_likelihood}")
+print(f"Predicted emotion for test sentence: {predicted_emotion}")
+
+
+## 문제 4
+from sklearn.model_selection import train_test_split
+from collections import defaultdict
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+# 데이터 불러오기 및 전처리
+data = []
+with open("emotions_train.txt", "r", encoding="utf-8") as file:
+    for line in file:
+        line = line.strip()  # 줄 끝의 개행 문자 제거
+        sentence, emotion = line.split(";")  # 문장과 감정 분리
+        data.append((sentence, emotion))
+
+# 문장과 감정 분리
+sentences, emotions = zip(*data)
+
+# 학습 데이터와 평가 데이터 분할
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(sentences, emotions, test_size=0.2, random_state=7)
+
+def cal_partial_freq(texts, emotion):
+    filtered_texts = [text for text, emo in zip(Xtrain, Ytrain) if emo == emotion]
+    partial_freq = defaultdict(int)
+    for text in filtered_texts:
+        for word in text.split():
+            partial_freq[word] += 1
+    return partial_freq
+
+def cal_total_freq(partial_freq):
+    return sum(partial_freq.values())
+
+def cal_prior_prob(data, emotion):
+    emotion_count = sum(1 for _, emo in data if emo == emotion)
+    return np.log(emotion_count / len(data))
+
+def predict_emotion(sent, data):
+    smoothing = 10
+    emotions_list = set(emotions)
+    predictions = []
+    
+    for emotion in emotions_list:
+        partial_freq = cal_partial_freq(Xtrain, emotion)
+        total_freq = cal_total_freq(partial_freq)
+        log_prob = cal_prior_prob(data, emotion)
+        
+        for word in sent.split():
+            word_freq = partial_freq.get(word, 0) + smoothing
+            log_prob += np.log(word_freq / (total_freq + smoothing * len(partial_freq)))
+        
+        predictions.append((emotion, log_prob))
+    
+    return max(predictions, key=lambda x: x[1])
+
+# 특정 단어의 발생 가능도 계산
+joy_freq = cal_partial_freq(Xtrain, "joy")
+sadness_freq = cal_partial_freq(Xtrain, "sadness")
+surprise_freq = cal_partial_freq(Xtrain, "surprise")
+
+total_joy = cal_total_freq(joy_freq)
+total_sadness = cal_total_freq(sadness_freq)
+total_surprise = cal_total_freq(surprise_freq)
+
+joy_likelihood = joy_freq.get("happy", 0) / total_joy if total_joy > 0 else 0
+sad_likelihood = sadness_freq.get("happy", 0) / total_sadness if total_sadness > 0 else 0
+surprise_likelihood = surprise_freq.get("can", 0) / total_surprise if total_surprise > 0 else 0
+
+# 감정 예측
+test_sent = "I am feeling great and happy today!"
+predicted_emotion = predict_emotion(test_sent, data)
+
+# scikit-learn을 사용한 나이브 베이즈 학습 및 예측
+cv = CountVectorizer()
+transformed_text = cv.fit_transform(Xtrain)
+
+clf = MultinomialNB()
+clf.fit(transformed_text, Ytrain)
+
+test_data = ["I am very sad and depressed.", "What a wonderful day!", "I am so surprised by this news!", "I feel frustrated and angry.", "Life is full of joy and happiness."]
+test_transformed = cv.transform(test_data)
+test_result = clf.predict(test_transformed)
+
+# 출력
+total_train_sentences = len(Xtrain)
+unique_train_emotions = len(set(Ytrain))
+print(f"학습 데이터 내 문장의 개수: {total_train_sentences}")
+print(f"학습 데이터 내 감정의 종류: {unique_train_emotions}")
+
+# 평가 데이터 개수 출력
+total_test_sentences = len(Xtest)
+print(f"평가 데이터 내 문장의 개수: {total_test_sentences}")
+
+# 결과 출력
+print(f"joy_likelihood: {joy_likelihood}")
+print(f"sad_likelihood: {sad_likelihood}")
+print(f"surprise_likelihood: {surprise_likelihood}")
+print(f"Predicted emotion for test sentence: {predicted_emotion}")
+print(f"Predicted emotions for test data: {test_result}")
+
+
+## 문제 5
+from flask import Flask, request, jsonify
+import pickle
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+# Flask 애플리케이션 초기화
+app = Flask(__name__)
+
+# 저장된 모델 로드
+with open("cv.pkl", "rb") as f:
+    cv = pickle.load(f)
+with open("clf.pkl", "rb") as f:
+    clf = pickle.load(f)
+
+@app.route("/predict", methods=["POST"])
+def predict():
+    data = request.get_json()
+    query = data.get("text", [])  # 입력 데이터 리스트
+    
+    if not query:
+        return jsonify({"error": "No text provided"}), 400
+    
+    # CountVectorizer로 변환
+    transformed_query = cv.transform(query)
+    
+    # 감정 예측
+    predictions = clf.predict(transformed_query)
+    
+    # 결과 저장
+    response = {i: pred for i, pred in enumerate(predictions)}
+    
+    return jsonify(response)
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+

@@ -1,0 +1,215 @@
+## 문제 1
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.datasets import mnist
+
+def create_cnn_model():
+    '''간단한 CNN 모델 생성'''
+    model = models.Sequential([
+        layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Flatten(),
+        layers.Dense(64, activation='relu'),
+        layers.Dense(10, activation='softmax')
+    ])
+    return model
+
+def preprocess_data(x,y):
+    '''데이터 전처리: 정규화 및 차원 추가'''
+    x = x.astype('float32') / 255.0
+    x = x[..., tf.newaxis] # (batch, height, width) -> (batch, height, width, 1)
+    y = tf.keras.utils.to_categorical(y, 10)  # One-hot encoding
+    return x, y
+
+def main():
+    # MNIST 데이터셋 로드 및 전처리
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    x_train, y_train = preprocess_data(x_train, y_train)
+    x_test, y_test = preprocess_data(x_test, y_test)
+
+    # 모델 생성 및 컴파일
+    model = create_cnn_model()
+    model.compile(optimizer='adam',
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+    
+    # 모델 생성 및 컴파일
+    model = create_cnn_model()
+    model.compule(optimizer='adam',
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+    
+    # 모델 학습 (1회 에포크)
+    model.fit(x_train, y_train, epochs=1, batch_size=64, validation_data=(x_test, y_test))
+
+    # H5 형식으로 모델 저장
+    h5_path = "h5_model.h5"
+    model.save(h5_path, save_format="h5")
+    print(f"모델이 H5 형식으로 저장되었습니다: {h5_path}")
+
+    # SavedModel 형식으로 모델 저장
+    saved_model_path = "saved_model"
+    model.save(saved_model_path, save_format="tf")
+    print(f"모델이 SavedModel 형식으로 저장되었습니다: {saved_model_path}")
+
+if __name__ == "__main__":
+    main()
+
+## 문제 2
+# 모델 정의
+fcl_model = create_cnn_model() # 동일한 구조의 모델 생성
+
+# 컴파일
+fcl_model.compile(optimizer='adam', 
+                  loss='categorical_crossentropy', 
+                  metrics=['accuracy'])
+
+# 5번째 체크포인트 경로
+checkpoint_path = "./checkpoints/cp-0005.ckpt"
+
+# 5번째 체크포인트 로드
+fcl_model.load_weights(checkpoint_path)
+print("5번째 체크포인트가 성공적으로 로드되었습니다.")
+
+def create_cnn_model():
+    model = models.Sequential([
+        layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Flatten(),
+        layers.Dense(64, activation='relu'),
+        layers.Dense(10, activation='softmax')
+
+    ])
+    return model
+
+# SavedModel 불러오기
+loaded_model = tf.keras.models.load_model("./afterfit")
+print("SavedModel 형식의 모델이 성공적으로 로드되었습니다.")
+
+# 체크포인트 로드
+fcl_model = create_cnn_model()
+fcl_model.compile(optimizer='adam', 
+                  loss='categorical_crossentropy', 
+                  metrics=['accuracy'])
+
+checkpoint_path = "./checkpoints/cp-0005.ckpt"
+fcl_model.load_weights(checkpoint_path)
+print("5번째 체크포인트가 성공적으로 로드되었습니다.")
+
+## 문제 3
+def create_cnn_model():
+    '''간단한 CNN 모델 생성'''
+    model = models.Sequential([
+        layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Flatten(),
+        layers.Dense(64, activation='relu'),
+        layers.Dense(10, activation='softmax')
+    ])
+    return model
+
+# 체크포인트 경로 설정
+checkpnt_path = "./checkpoints/cp-0010.ckpt"
+
+# 모델 정의
+model = create_cnn_model()
+
+# 모델 컴파일
+model.compile(optimizer='adam', 
+              loss='categorical_crossentropy', 
+              metrics=['accuracy'])
+
+# 체크포인트 불러오기
+model.load_weights(checkpnt_path)
+print("10번째 체크포인트가 성공적으로 로드되었습니다.")
+
+# 이어서 학습
+# 데이터셋 로드 및 전처리
+from tensorflow.keras.datasets import mnist
+
+def preprocess_data(x, y):
+    """데이터 전처리: 정규화 및 차원 추가"""
+    x = x.astype('float32') / 255.0
+    x = x[..., tf.newaxis]  # (batch, height, width) -> (batch, height, width, 1)
+    y = tf.keras.utils.to_categorical(y, 10)  # One-hot encoding
+    return x, y
+
+(x_train, y_train), (x_val, y_val) = mnist.load_data()
+x_train, y_train = preprocess_data(x_train, y_train)
+x_val, y_val = preprocess_data(x_val, y_val)
+
+# 11epoch부터 시작해서 5epoch 학습 진행
+model.fit(x_train, y_train, 
+          epochs=15,                # 최종 epoch
+          initial_epoch=10,         # 이어서 학습할 초기 epoch
+          validation_data=(x_val, y_val),
+          validation_freq=1)
+
+print("모델 학습이 완료되었습니다.")
+
+## 문제 4
+
+# 1. 학습 완료된 모델을 "JSModel1"로 저장
+js_model1_path = "./JSModel1"
+tfjs.converters.save_keras_model(model, js_model1_path)
+print(f"학습 완료된 모델이 TensorFlow.js 포맷으로 저장되었습니다: {js_model1_path}")
+
+# 2. 다른 SavedModel 불러오기
+saved_model_path = "./OtherSModel"  # "OtherSModel" 디렉토리 경로
+loaded_model = tf.keras.models.load_model(saved_model_path)
+print("SavedModel 형식의 모델이 성공적으로 로드되었습니다.")
+
+# 3. 불러온 모델을 "JSModel2"로 저장
+js_model2_path = "./JSModel2"
+tfjs.converters.save_keras_model(loaded_model, js_model2_path)
+print(f"불러온 모델이 TensorFlow.js 포맷으로 저장되었습니다: {js_model2_path}")
+
+pip install tensorflowjs
+
+## 문제 5
+
+def work(model, img):
+    '''
+     모델에 이미지를 입력하여 결과를 예측하고 해석하는 함수.
+
+    Parameters:
+    model (tf.keras.Model): 불러온 Keras 모델.
+    img (numpy.ndarray): 예측에 사용할 입력 이미지 (28x28 크기, 정규화 필요).
+
+    Returns:
+    int: 예측된 클래스 (0부터 9까지의 숫자 중 하나).
+    '''
+
+    # 1. 이미지를 모델에 입력하여 예측 수행
+    pred = model.predict(np.expand_dims(img, axis=0)) # 이미지를 배치 형태로 변환하여 입력
+
+    # 2. 첫 번째 결과만 사용
+    pred = pred[0]
+
+    # 3. 가장 높은 비율을 가진 클래스의 인덱스 찾기
+    idx = tf.math.argmax(pred).numpy()
+
+    return idx
+
+if __name__=="__main__":
+    # mymodel 불러오기
+    model = tf.keras.models.load_model("./mymodel")
+    print("모델이 성공적으로 로드되었습니다.")
+
+    # 예제 이미지 (MNIST 데이터셋에서 샘플 이미지 불러오기)
+    from tensorflow.keras.datasets import mnist
+    (_, _), (x_test, _) = mnist.load_data()
+
+    # 테스트 이미지 전처리 (정규화 및 차원 추가)
+    test_img = x_test[0].astype('float32') / 255.0 # 첫 번째 테스트 이미지
+    print(f"예측할 이미지 클래스: {test_img.shape}")
+
+    # work 함수 호출
+    result = work(model, test_img)
+    print(f"예측된 클래스: {result}")

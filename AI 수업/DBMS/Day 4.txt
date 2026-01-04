@@ -1,0 +1,91 @@
+칼럼에 조건이 걸려있다. -> 초기화
+DDL
+[drop table/database 테이블]
+[create table/database 테이블]
+
+DML
+데이터가 많아서 -> 초기화
+[delete from 테이블]
+
+---
+auto_crement 조건을 주려면 key여야 한다.
+
+
+---
+데이터가 쌓인 상태에서 칼럼에 조건을 걸고자 할 때 제한되는 상황이 발생한다.
+이때는 초기화하기. 물론 공부할 때만!
+
+실제 데이터는 함부로 초기화하면 안되겠죠
+회사에서 데이터 삭제해야한다 -> 결제 맡는다고도 합니다.
+
+사용자가 삭제하기 버튼 클릭 -> delete 쿼리 X / '삭제여부'칼럼 True
+
+---
+마지막 입력한 데이터의 id 찾는 쿼리
+SELECT LAST_INSERT_ID();
+
+예) 회원가입 -> 등급 -> 첫 등급 준다 : SELECT LAST_INSERT_ID(); 쓸 수 있습니다.
+
+
+---
+regDate : registration date 등록일
+
+
+---
+primary key 조건:
+중복이 되지 않는 한 오류는 없다.
+
+
+---
+int
+크기 : 4바이트
+
+int(10) : 괄호 안 수는 zerofill
+데이터가 작을 때 나머지 자리수를 0으로 채운다.
+
+
+---
+<where절>
+조건절 : 필요한 데이터만을 조회할 때 사용
+
+연산자 : =, >, <, >=, <=, between A and B, in, like '비교문자열', is null
+
+!=, <>, ^=(mysql X) : 같지 않다
+is not null
+
+like와 같이 쓰이는
+% : 와일드카드. 0개 이상의 어떤 문자
+_ : 언더바. 1개의 단일 문자
+
+
+* like 쿼리는 무거운 쿼리 -> 실행속도에 영향을 끼친다. 느려지는 원인이 되기도 함.
+
+---
+<정렬>
+[order by 컬럼]
+쿼리 절 실행순서 맨 마지막에 작성.
+기본값은 asc
+
+컬럼을 기준으로 행 데이터들을 정렬
+오름차순 : order by 컬럼 asc
+내림차순 : order by 컬럼 desc
+
+mysql 기준
+null값은 가장 작은 값으로 인식
+desc -> null은 가장 아래 위치
+
+---
+and vs. or
+
+True / False
+참 / 거짓
+
+T and T -> T
+T and F -> F
+F and T -> F
+F and F -> F
+
+T or T -> T
+T or F -> T
+F or T -> T
+F or F -> F

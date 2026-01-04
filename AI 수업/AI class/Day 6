@@ -1,0 +1,136 @@
+# 문제1
+def gugu(dan):
+    for i in range(1, 10):
+        print(f"{dan} x {i} = {dan * i}")
+    
+gugu(8)
+
+# 문제2
+def sum_of_multiples(limit):
+    total = 0
+    for i in range(limit):
+        if i % 3 == 0 or i % 5 == 0:
+            total += i
+    return total
+
+result = sum_of_multiples(1000)
+print(result)
+
+# 문제3
+def get_total_page(m, n):
+    if m % n == 0:
+        return m // n
+    else:
+        return m// n + 1
+    
+print(get_total_page(5, 10))
+print(get_total_page(15,10))
+print(get_total_page(25,10))
+print(get_total_page(30,10))
+
+# 문제4
+import argparse
+import os
+
+# 메모가 저장될 파일명
+MEMO_FILE = "memo.txt"
+
+def add_memo(memo):
+    """메모를 파일에 추가합니다."""
+    with open(MEMO_FILE, 'a') as file:
+        file.write(memo + "\n")
+    print(f"메모가 추가되었습니다: {memo}")
+
+def view_memos():
+    """저장된 메모를 조회합니다."""
+    if os.path.exists(MEMO_FILE):
+        with open(MEMO_FILE, 'r') as file:
+            memos = file.readlines()
+            if memos:
+                print("저장된 메모 목록:")
+                for index, memo in enumerate(memos, 1):
+                    print(f"{index}. {memo.strip()}")
+            else:
+                print("저장된 메모가 없습니다.")
+    else:
+        print("메모 파일이 존재하지 않습니다. 메모를 추가해 주세요.")
+
+def main():
+    """명령줄 인자를 파싱하고 적절한 기능을 호출합니다."""
+    parser = argparse.ArgumentParser(description="간단한 메모장 프로그램")
+    parser.add_argument('-a', '--add', help="추가할 메모를 입력하세요")
+    parser.add_argument('-v', '--view', action='store_true', help="저장된 메모를 조회합니다")
+
+    args = parser.parse_args()
+
+    if args.add:
+        add_memo(args.add)
+    elif args.view:
+        view_memos()
+    else:
+        print("옵션을 선택해 주세요. -a로 메모 추가, -v로 메모 조회가 가능합니다.")
+
+if __name__ == "__main__":
+    main()
+
+# 문제 5
+import argparse
+
+def replace_tabs_with_spaces(src_file, dst_file):
+    """탭 문자를 공백 4개로 변환하여 새로운 파일에 저장합니다."""
+    try:
+        with open(src_file, 'r') as src:
+            content = src.read()
+            
+        # 탭 문자를 공백 4개로 변환
+        content = content.replace('\t', ' ' * 4)
+        
+        with open(dst_file, 'w') as dst:
+            dst.write(content)
+        
+        print(f"탭 문자를 공백 4개로 변환하여 {dst_file}에 저장했습니다.")
+    
+    except FileNotFoundError:
+        print(f"오류: 원본 파일 {src_file}을(를) 찾을 수 없습니다.")
+    except IOError as e:
+        print(f"입출력 오류: {e}")
+
+def main():
+    """명령줄 인자를 파싱하고 적절한 기능을 호출합니다."""
+    parser = argparse.ArgumentParser(description="탭 문자를 공백 4개로 변환하는 프로그램")
+    parser.add_argument('src', help="탭 문자를 포함하고 있는 원본 파일 이름")
+    parser.add_argument('dst', help="탭 문자를 공백 4개로 변환한 결과를 저장할 파일 이름")
+
+    args = parser.parse_args()
+    
+    replace_tabs_with_spaces(args.src, args.dst)
+
+if __name__ == "__main__":
+    main()
+
+# 문제 6
+import os
+import argparse
+import fnmatch
+
+def find_python_files(start_dir):
+    """지정한 디렉토리부터 시작하여 모든 하위 디렉토리에서 파이썬 파일을 찾습니다."""
+    for root, dirs, files in os.walk(start_dir):
+        for filename in fnmatch.filter(files, '*.py'):
+            file_path = os.path.join(root, filename)
+            print(file_path)
+
+def main():
+    """명령줄 인자를 파싱하고 적절한 기능을 호출합니다."""
+    parser = argparse.ArgumentParser(description="디렉토리 하위의 모든 파이썬 파일을 찾는 프로그램")
+    parser.add_argument('directory', help="검색을 시작할 디렉토리")
+
+    args = parser.parse_args()
+    
+    if os.path.isdir(args.directory):
+        find_python_files(args.directory)
+    else:
+        print(f"오류: {args.directory}는 유효한 디렉토리가 아닙니다.")
+
+if __name__ == "__main__":
+    main()

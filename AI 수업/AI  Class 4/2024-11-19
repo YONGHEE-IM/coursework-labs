@@ -1,0 +1,347 @@
+## 문제 1
+
+# (1)
+import tensorflow as tf
+from tensorflow.keras import layers, Sequential
+
+def build_model1():
+    model = Sequential([
+        layers.Embedding(input_dim=10, output_dim=5, input_length=None),  # 단어 개수: 10, 벡터 길이: 5
+        layers.SimpleRNN(units=3)  # hidden state 크기: 3
+    ])
+    return model
+
+# 모델 생성 예시
+model1 = build_model1()
+model1.summary()
+
+# (2)
+import tensorflow as tf
+from tensorflow.keras import layers, Sequential
+
+def build_model2():
+    model = Sequential([
+        layers.Embedding(input_dim=256, output_dim=100, input_length=None),  # 단어 개수: 256, 벡터 길이: 100
+        layers.SimpleRNN(units=20),  # hidden state 크기: 20
+        layers.Dense(units=10, activation='softmax')  # 노드 개수: 10, 활성화 함수: softmax
+    ])
+    return model
+
+# 모델 생성 예시
+model2 = build_model2()
+model2.summary()
+
+
+## 문제 2
+
+# (1)
+import tensorflow as tf
+from tensorflow.keras import layers, Sequential
+
+def build_rnn_model(num_words, embedding_len):
+    model = Sequential([
+        layers.Embedding(input_dim=num_words, output_dim=embedding_len, input_length=None),  # 단어 개수와 벡터 길이
+        layers.SimpleRNN(units=16),  # hidden state 크기: 16
+        layers.Dense(units=1, activation='sigmoid')  # 노드: 1, 활성화 함수: sigmoid
+    ])
+    return model
+
+# IMDb 데이터셋 로드 및 전처리
+from tensorflow.keras.datasets import imdb
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+# 데이터셋 로드
+num_words = 10000  # 상위 10,000개 단어만 사용
+maxlen = 100       # 각 리뷰의 최대 길이
+embedding_len = 50 # 임베딩 벡터 길이
+
+(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=num_words)
+
+# 패딩으로 리뷰 길이를 맞추기
+x_train = pad_sequences(x_train, maxlen=maxlen)
+x_test = pad_sequences(x_test, maxlen=maxlen)
+
+# 모델 생성
+model = build_rnn_model(num_words, embedding_len)
+model.summary()
+
+# 모델 컴파일 및 훈련
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+history = model.fit(x_train, y_train, epochs=5, batch_size=32, validation_split=0.2)
+
+# (2)
+def main():
+    # IMDb 데이터셋 로드 및 전처리
+    num_words = 10000       # 상위 10,000개 단어만 사용
+    maxlen = 100            # 각 리뷰의 최대 길이
+    embedding_len = 50      # 임베딩 벡터 길이
+    epochs = 5              # 학습 에포크 수
+
+    from tensorflow.keras.datasets import imdb
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
+    
+    (x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=num_words)
+    x_train = pad_sequences(x_train, maxlen=maxlen)
+    x_test = pad_sequences(x_test, maxlen=maxlen)
+    
+    # 모델 생성
+    model = build_rnn_model(num_words, embedding_len)
+    
+    # Optimizer 설정
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    
+    # 모델 컴파일
+    model.compile(optimizer=optimizer,
+                  loss='binary_crossentropy',
+                  metrics=['accuracy'])
+    
+    # 모델 학습
+    history = model.fit(x_train, y_train,
+                        epochs=epochs,
+                        batch_size=100,
+                        validation_split=0.2,
+                        shuffle=True,
+                        verbose=2)
+    
+    # 평가
+    test_loss, test_accuracy = model.evaluate(x_test, y_test, verbose=2)
+    print(f"Test Loss: {test_loss:.4f}")
+    print(f"Test Accuracy: {test_accuracy:.4f}")
+
+if __name__ == "__main__":
+    main()
+
+## 문제3
+
+# (1)
+import tensorflow as tf
+from tensorflow.keras import layers, Sequential
+
+def build_rnn_model(window_size):
+    model = Sequential([
+        layers.SimpleRNN(units=4, input_shape=(window_size, 1)),  # hidden state 크기: 4, 입력 형태: (window_size, 1)
+        layers.Dense(units=1)  # 노드: 1
+    ])
+    return model
+
+# 모델 생성 예시
+window_size = 10  # 입력 시퀀스 길이
+model = build_rnn_model(window_size)
+model.summary()
+
+# (2)
+def main():
+    # Hyperparameters
+    window_size = 10   # 입력 시퀀스 길이
+    epochs = 20        # 학습 에포크 수
+
+    # 데이터 생성 (샘플 데이터)
+    import numpy as np
+    x = np.linspace(0, 100, 500)   # 500개의 데이터 포인트 생성
+    y = np.sin(x)                  # 예제: 사인 곡선
+    data = np.array([[y[i:i+window_size], y[i+window_size]] for i in range(len(y) - window_size)])
+    x_train = np.expand_dims(data[:, 0], axis=-1)  # 입력 데이터 (shape: (batch_size, window_size, 1))
+    y_train = data[:, 1]                           # 타겟 데이터 (shape: (batch_size,))
+
+    # 모델 생성
+    model = build_rnn_model(window_size)
+
+    # Optimizer 설정
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+
+    # 모델 컴파일
+    model.compile(optimizer=optimizer,
+                  loss='mse',          # Mean Squared Error (MSE)
+                  metrics=['mae'])     # Mean Absolute Error (MAE)
+
+    # 모델 학습
+    history = model.fit(
+        x_train, y_train,
+        batch_size=8,       # 배치 크기
+        epochs=epochs,      # 학습 에포크 수
+        shuffle=True,       # 데이터 셔플
+        verbose=2           # 간단한 출력 형식
+    )
+
+    # 모델 평가 (테스트 데이터로 평가를 진행하려면 따로 분리 필요)
+    loss, mae = model.evaluate(x_train, y_train, verbose=2)
+    print(f"Final Loss (MSE): {loss:.4f}")
+    print(f"Final Metric (MAE): {mae:.4f}")
+
+if __name__ == "__main__":
+    main()
+
+## 문제 4
+
+# (1)
+import tensorflow as tf
+from tensorflow.keras import layers, Sequential
+
+def build_rnn_model(window_size):
+    model = Sequential([
+        layers.SimpleRNN(units=20, input_shape=(window_size, 1)),  # hidden state 크기: 20, 입력 형태: (window_size, 1)
+        layers.Dense(units=1)  # 노드: 1
+    ])
+    return model
+
+# 모델 생성 예시
+window_size = 10  # 입력 시퀀스 길이
+model = build_rnn_model(window_size)
+model.summary()
+
+import numpy as np
+
+# 샘플 입력 데이터 (batch_size=2, window_size=10)
+sample_input = np.random.random((2, window_size, 1))
+
+# 모델 예측
+output = model(sample_input)
+print(output)
+
+# (2)
+import tensorflow as tf
+from tensorflow.keras import layers, Sequential
+
+def build_deep_rnn_model(window_size):
+    model = Sequential([
+        layers.SimpleRNN(units=20, return_sequences=True, input_shape=(window_size, 1)),  # 첫 번째 RNN Layer
+        layers.SimpleRNN(units=20),  # 두 번째 RNN Layer
+        layers.Dense(units=1)  # 출력 Layer
+    ])
+    return model
+
+# 모델 생성 예시
+window_size = 10  # 입력 시퀀스 길이
+model = build_deep_rnn_model(window_size)
+model.summary()
+
+import numpy as np
+
+# 샘플 입력 데이터 (batch_size=2, window_size=10)
+sample_input = np.random.random((2, window_size, 1))
+
+# 모델 예측
+output = model(sample_input)
+print(output)
+
+# (3)
+def run_model(model, x_train, y_train, epochs=10, batch_size=8):
+    # Optimizer 설정
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+
+    # 모델 컴파일
+    model.compile(optimizer=optimizer,
+                  loss='mse',  # Mean Squared Error (MSE)
+                  metrics=['mae'])  # Mean Absolute Error (MAE) 추가 지표
+
+    # 모델 학습
+    history = model.fit(
+        x_train, y_train,
+        epochs=epochs,
+        batch_size=batch_size,
+        shuffle=True,  # 데이터 섞기
+        verbose=2      # 학습 로그 출력
+    )
+    return history
+
+# 예시 데이터
+import numpy as np
+
+x_train = np.random.random((100, 10, 1))  # 100개의 샘플, 시퀀스 길이 10, 입력 특성 1
+y_train = np.random.random((100,))        # 100개의 타겟값
+
+# 모델 생성 및 실행
+window_size = 10
+model = build_deep_rnn_model(window_size)
+
+# 모델 학습 실행
+history = run_model(model, x_train, y_train, epochs=10, batch_size=8)
+
+# (4)
+def run_model(model, x_train, y_train, epochs, batch_size=256):
+    # Optimizer 설정
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+
+    # 모델 컴파일
+    model.compile(optimizer=optimizer,
+                  loss='mse',  # Mean Squared Error (MSE)
+                  metrics=['mae'])  # Mean Absolute Error (MAE) 추가 지표
+
+    # 모델 학습
+    history = model.fit(
+        x_train, y_train,
+        epochs=epochs,          # epochs 하이퍼파라미터 설정
+        batch_size=batch_size,  # 배치 사이즈 256 설정
+        shuffle=True,           # 데이터 셔플
+        verbose=2               # 학습 진행 상태 출력
+    )
+    return history
+
+# 예시 데이터
+import numpy as np
+
+x_train = np.random.random((1000, 10, 1))  # 1000개의 샘플, 시퀀스 길이 10, 입력 특성 1
+y_train = np.random.random((1000,))        # 1000개의 타겟값
+
+# 모델 생성
+window_size = 10
+model = build_deep_rnn_model(window_size)
+
+# 모델 학습 실행
+epochs = 20
+history = run_model(model, x_train, y_train, epochs=epochs, batch_size=256)
+
+## 문제 5
+import tensorflow as tf
+from tensorflow.keras import layers, Model
+
+class EncoderDecoder(Model):
+    def __init__(self, hidden_dim, encoder_input_shape, decoder_input_shape):
+        super(EncoderDecoder, self).__init__()
+
+        # Encoder: SimpleRNN layer
+        self.encoder = layers.SimpleRNN(
+            units=hidden_dim, 
+            return_state=True, 
+            input_shape=encoder_input_shape
+        )
+
+        # Decoder: SimpleRNN layer
+        self.decoder = layers.SimpleRNN(
+            units=hidden_dim, 
+            return_sequences=True, 
+            input_shape=decoder_input_shape
+        )
+
+        # Output layer
+        self.output_layer = layers.Dense(1)  # 단일 값 예측, 필요에 따라 수정 가능
+
+    def call(self, encoder_input, decoder_input):
+        # Encoder를 통해 입력값 처리
+        encoder_output, encoder_state = self.encoder(encoder_input)
+
+        # Decoder를 통해 입력값 처리, 초기 hidden state는 Encoder의 최종 hidden state
+        decoder_output = self.decoder(decoder_input, initial_state=[encoder_state])
+
+        # 최종 출력 (optional: 이 예시에서는 단일 출력값을 예측)
+        output = self.output_layer(decoder_output)
+
+        return output
+
+# 모델 사용 예시
+hidden_dim = 64
+encoder_input_shape = (None, 10)  # 예시: (batch_size, sequence_length)
+decoder_input_shape = (None, 10)  # 예시: (batch_size, sequence_length)
+
+# 모델 생성
+model = EncoderDecoder(hidden_dim, encoder_input_shape, decoder_input_shape)
+
+# 예시 입력 데이터
+encoder_input = tf.random.normal((32, 10, 10))  # (batch_size, sequence_length, input_dim)
+decoder_input = tf.random.normal((32, 10, 10))  # (batch_size, sequence_length, input_dim)
+
+# 모델 예측
+output = model(encoder_input, decoder_input)
+
+# 결과 출력
+print(output.shape)  # (32, 10, 1) 형태의 출력 예시

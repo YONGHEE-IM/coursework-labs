@@ -1,0 +1,243 @@
+# 문제 1
+
+def scalar_multiplyv(a,b):
+    if isinstance(a, (int, float)) and isinstance(b, list):
+        return [a * x for x in b]
+    
+
+    elif isinstance(a, list) and isinstance(b, (int, float)):
+        return [b * x for x in a]
+    
+    else:
+        raise ValueError("첫 번째 인자 또는 두 번째 인자가 잘못되었습니다. 하나는 스칼라, 다른 하나는 벡터여야 합니다. ")
+    
+
+print(scalar_multiplyv(3, [1, 2, 3]))
+print(scalar_multiplyv([1, 2, 3], 3))
+
+# 문제2
+
+def scalar_addV(vector, scalar):
+    return [x + scalar for x in vector]
+
+
+vector = [1, 2, 3, 4]
+scalar = 5
+result = scalar_addV(vector, scalar)
+
+print(result)
+
+# 문제3
+
+def scalar_subtractV(vector, scalar):
+    return [x - scalar for x in vector]
+
+vector = [10, 20, 30, 40]
+scalar = 5
+result = scalar_subtractV(vector, scalar)
+
+print(result)
+
+# 문제 4
+
+def scalar_divideV(vector, scalar):
+    if scalar == 0:
+        raise ValueError("스칼라 값은 0이 될 수 없습니다.")
+    
+    return [element / scalar for element in vector]
+
+vector = [10, 20, 30]
+scalar = 2
+result = scalar_divideV(vector, scalar)
+
+print(result)
+
+# 문제 5
+
+def multiplyM(matrix1, matrix2):
+    if len(matrix1) != len(matrix2) or any(len(row1) != len(row2) for row1, row2 in zip(matrix1, matrix2)):
+        raise ValueError("두 행렬의 크기는 같아야 합니다.")
+    
+    result = [
+        [element1 * element2 for element1, element2 in zip(row1, row2)]
+        for row1, row2 in zip(matrix1, matrix2)
+    ]
+
+    return result
+
+matrix1 = [
+    [2, 2, 3],
+    [1, 7, 1]
+]
+matrix2 = [
+    [1, 4, 1],
+    [5, 5, 1]
+]
+
+result = multiplyM(matrix1, matrix2)
+print(result)
+
+# 문제6
+
+def divideM(matrix1, matrix2):
+    if len(matrix1) != len(matrix2) or any(len(row1) != len(row2) for row1, row2 in zip(matrix1, matrix2)):
+        raise ValueError("두 행렬의 크기는 같아야 합니다.")
+    
+    result = []
+    for row1, row2 in zip(matrix1, matrix2):
+        result_row = []
+        for element1, element2 in zip(row1, row2):
+            if element2 == 0:
+                raise ValueError("나누는 행렬의 요소는 0이 될 수 없습니다.")
+            result_row.append(element1 / element2)
+        result.append(result_row)
+
+    return result
+
+matrix1 = [
+    [2, 2, 3],
+    [1, 7, 1]
+]
+matirx2 = [
+    [1, 4, 1],
+    [5, 5, 1]
+]
+
+result = divideM(matrix1, matrix2)
+print(result)
+
+# 문제 7
+
+def scalar_multiplyM(a, b):
+    if isinstance(a, (int, float)) and isinstance(b, list):
+        return [[a * element for element in row] for row in b]
+    
+    elif isinstance(a, list) and isinstance(b, (int, float)):
+        return [[b * element for element in row] for row in a]
+    
+    else:
+        raise ValueError("하나의 인자는 스칼라이고 다른 하나는 행렬이어야 합니다.")
+    
+matrix = [[1, 2], [3, 4]]
+scalar = 2
+
+result1 = scalar_multiplyM(scalar, matrix)
+print("스칼라 * 행렬 결과:", result1)
+
+result2 = scalar_multiplyM(matrix, scalar)
+print("행렬 * 스칼라 결과:", result2)
+
+# 문제 8
+
+def scalar_addM(a, b):
+    # 첫 번째 인자가 스칼라이고 두 번째 인자가 행렬인 경우
+    if isinstance(a, (int, float)) and isinstance(b, list):
+        return [[a + element for element in row] for row in b]
+    
+    # 첫 번째 인자가 행렬이고 두 번째 인자가 스칼라인 경우
+    elif isinstance(a, list) and isinstance(b, (int, float)):
+        return [[element + b for element in row] for row in a]
+    
+    else:
+        raise ValueError("하나의 인자는 스칼라이고 다른 하나는 행렬이어야 합니다.")
+
+# 예시 사용
+matrix = [[1, 2], [3, 4]]
+scalar = 5
+
+# 스칼라 + 행렬
+result1 = scalar_addM(scalar, matrix)
+print("스칼라 + 행렬 결과:", result1)
+
+# 행렬 + 스칼라
+result2 = scalar_addM(matrix, scalar)
+print("행렬 + 스칼라 결과:", result2)
+
+# 문제 9
+
+def scalar_subtractM(a, b):
+    # 첫 번째 인자가 스칼라이고 두 번째 인자가 행렬인 경우: 스칼라 - 행렬
+    if isinstance(a, (int, float)) and isinstance(b, list):
+        return [[a - element for element in row] for row in b]
+    
+    # 첫 번째 인자가 행렬이고 두 번째 인자가 스칼라인 경우: 행렬 - 스칼라
+    elif isinstance(a, list) and isinstance(b, (int, float)):
+        return [[element - b for element in row] for row in a]
+    
+    else:
+        raise ValueError("하나의 인자는 스칼라이고 다른 하나는 행렬이어야 합니다.")
+
+# 예시 사용
+matrix = [[1, 2], [3, 4]]
+scalar = 5
+
+# 스칼라 - 행렬
+result1 = scalar_subtractM(scalar, matrix)
+print("스칼라 - 행렬 결과:", result1)
+
+# 행렬 - 스칼라
+result2 = scalar_subtractM(matrix, scalar)
+print("행렬 - 스칼라 결과:", result2)
+
+# 문제 10
+
+import numpy as np
+
+def scalar_divideM(matrix, scalar):
+    """
+    행렬의 각 요소를 주어진 스칼라 값으로 나누는 함수입니다.
+
+    :param matrix: 나눗셈을 수행할 입력 행렬 (2D numpy 배열)
+    :param scalar: 각 요소를 나눌 스칼라 값
+    :return: 스칼라 값으로 나누어진 새로운 행렬
+    """
+    # 스칼라 값이 0인지 확인하고, 0일 경우 예외를 발생시킵니다.
+    if scalar == 0:
+        raise ValueError("스칼라는 0일 수 없습니다.")
+    
+    # 입력을 NumPy 배열로 변환합니다.
+    matrix = np.array(matrix)
+    
+    # 행렬의 각 요소를 스칼라 값으로 나눕니다.
+    return matrix / scalar
+
+# 예시 사용법
+matrix = np.array([[2, 4], [6, 8]])
+scalar = 2
+result = scalar_divideM(matrix, scalar)
+print(result)
+
+# 문제 11
+
+import numpy as np
+
+friend_matrix = np.zeros((10, 10), dtype=int)
+
+friendships = [(0, 1), (0, 2), (1, 2), (1, 3), (2, 3), (3, 4),
+               (4, 5), (5, 6), (5, 7), (6, 8), (7, 8), (8, 9)]
+
+for i, j in friendships:
+    friend_matrix[i, j] = 1
+    friend_matrix[j, i] = 1
+
+print(friend_matrix)
+
+import numpy as np
+
+# 넘파이 문제 1
+
+values = np.arange(1, 40, 2)
+
+array = values.reshape(4, 5)
+
+print(array)
+
+# 문제 2
+
+# 문제 3
+
+V = np.array([[1, 2], [3, 4]])
+H = np.array([[5, 6]])
+
+result_vertical = np.con
+

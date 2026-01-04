@@ -1,0 +1,159 @@
+def show_price():
+    print('커트 가격은 1000원입니다.')
+
+customer1 = '나장발'
+print(f'{customer1} 고객님')
+show_price()
+
+customer2 = '나수염'
+print(f'{customer2} 고객님')
+show_price()
+
+def show_price(customer): # 함수 정의
+    print(f'사랑하는 {customer} 고객님')
+    print('감성 커트 가격은 15000 원입니다')
+
+customer1 = '나장발'
+show_price(customer1) # 함수 호출
+
+customer2 = '나수염'
+show_price(customer2) # 함수 호출
+
+def get_price():
+    return 15000
+
+price = get_price()
+print(price)
+
+def get_price(is_vip):
+    if is_vip == True:
+        return 10000
+    else:
+        return 15000
+    
+price = get_price(False)
+print(price)
+
+def order(shot=2, size='Regular', takeout=True): 
+    print(f'아메리카노 {size} 사이즈 {shot}샷')
+    if takeout:
+        print('포장 주문이 완료되었습니다')
+    else:
+        print('주문이 완료 되었습니다')
+
+# print(order())
+# print(order(2, takeout=True))
+# print(order(size='Regular'))
+print(order('Regular', takeout=True))
+
+def my_function(a, *b):
+    print(a)
+    print(*b)
+
+my_function(1, 2, 3, 4, 5, 6)
+
+def secret():
+    message = '이건 나만의 비밀'
+    print(message)
+    message = '함수 내에서는 수정 가능'
+    print(message)
+
+
+print(secret())
+
+def please():
+    message = '이건 가능?'
+    print(message)
+
+message = '나는 전역 변수'
+print(message)
+
+def no_secret():
+    global message
+    message = '이러면 지역 변수'
+    print(message)
+
+no_secret()
+print(message)
+
+x = 3
+def add():
+    x = 6
+    x += 3
+    print(x)
+add()   # 지역 변수
+print(x) # 글로벌 변수
+
+name = input('성함이 뭔가요?')
+print(name)
+
+num = int(input('몇 분이세요?'))
+if num > 4:
+    print('죄송합니다 저희 식당은 4명까지만 예약 가능합니다.')
+
+
+# 문제1
+
+def is_odd(number):
+    if number % 2 == 1 :
+        return True
+    else:
+        return False
+    
+# 문제 2
+
+def avg_numbers(*args):
+    result = 0
+    for i in args:
+        result += i
+    return result / len(args)
+
+print(avg_numbers(1,2))
+print(avg_numbers(1,2,3,4,5))
+
+# 문제 3
+
+input1 = input('첫 번째 숫자를 입력하세요: ')
+input2 = input('두 번재 숫자를 입력하세요: ')
+
+num1 = int(input1)
+num2 = int(input2)
+
+total = num1 + num2
+
+print(f'두 수의 합은 {total}입니다.')
+
+
+# 문제 5
+
+with open('test.txt', 'w') as f1:
+    f1.write('Life is too short')
+
+with open('test.txt', 'r') as f2:
+    print(f2.read())
+
+
+# 문제 6
+
+user_input = input('저장할 내용을 입력하세요: ')
+
+f = open('test.txt', 'a')
+
+f.write(user_input)
+
+f.write('\n')
+
+f.close()
+
+
+# 문제 7
+
+f = open('test.txt', 'r')
+body = f.read()
+f.close()
+
+body = body.replace('java', 'python')
+
+f = open('test.txt', 'w')
+f.write(body)
+f.close()

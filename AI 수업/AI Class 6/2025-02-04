@@ -1,0 +1,128 @@
+## 문제 1
+pip install konlpy pandas
+
+from konlpy.tag import Kkma, Okt
+import pandas as pd
+
+# KoNLPy 형태소 분석기 초기화
+kkma = Kkma()
+okt = Okt()
+
+# sts-train.tsv 파일 로드 (탭으로 구분된 파일)
+df = pd.read_csv('sts-train.tsv', sep='\t', error_bad_lines=False)
+
+# 첫 5개 문장 확인
+sent = df['sentence1'].head().tolist()
+print("첫 5개 문장:", sent)
+
+# Kkma를 사용한 명사 추출
+nouns = [kkma.nouns(sentence) for sentence in sent]
+print("명사 리스트:", nouns)
+
+# Okt를 사용한 형태소 분석
+pos_results = [okt.pos(sentence) for sentence in sent]
+print("두 번째 문장의 형태소 분석 결과:", pos_results[1])
+
+# Okt의 stemming 기능을 활용한 두 번째 문장의 형태소 분석
+stem_pos_results = okt.pos(sent[1], stem=True)
+print("두 번째 문장의 스테밍 기반 형태소 분석 결과:", stem_pos_results)
+
+
+## 문제 2
+pip install soynlp konlpy pandas
+
+from soynlp.noun import LRNounExtractor_v2
+from konlpy.tag import Okt
+
+# train_data는 이미 저장되어 있다고 가정
+# 학습 문서 개수 확인
+print(f"학습 문서 개수: {len(train_data)}")
+
+# LRNounExtractor_v2 객체 생성
+noun_extractor = LRNounExtractor_v2()
+
+# 학습 진행
+nouns = noun_extractor.train_extract(train_data)
+print(f"추출된 명사 개수: {len(nouns)}")
+
+# 명사 추출을 위한 Okt 형태소 분석기
+okt = Okt()
+
+# sent에서 명사 추출
+sent_nouns = [okt.nouns(sentence) for sentence in sent]
+
+print("첫 번째 문장의 명사:", sent_nouns[0])
+
+
+## 문제 3
+pip install nltk
+
+import nltk
+from nltk.metrics import jaccard_distance
+
+# 자카드 유사도 계산 함수 정의
+def cal_jaccard_sim(sent1, sent2):
+    # 단어 기준으로 토큰화 후 set 변환
+    set1 = set(sent1.split())
+    set2 = set(sent2.split())
+    
+    # 교집합(공통 단어 개수) 계산
+    intersection_len = len(set1.intersection(set2))
+    
+    # 합집합(전체 단어 개수) 계산
+    union_len = len(set1.union(set2))
+    
+    # 자카드 유사도 계산 및 반환
+    return float(intersection_len / union_len)
+
+# 비교할 두 문장
+sent_1 = "나는 학교에 간다"
+sent_2 = "너는 학교에 가지 않는다"
+
+# 자카드 유사도 계산
+jaccard_sim = cal_jaccard_sim(sent_1, sent_2)
+print(f"자카드 유사도: {jaccard_sim}")
+
+# nltk를 활용한 자카드 거리 계산
+nltk_jaccard_dist = jaccard_distance(set(sent_1.split()), set(sent_2.split()))
+
+# 유사도 변환 (유사도 = 1 - 거리)
+nltk_jaccard_sim = 1 - nltk_jaccard_dist
+print(f"nltk 자카드 유사도: {nltk_jaccard_sim}")
+
+
+## 문제 4
+import numpy as np
+from scipy.spatial import distance
+from sklearn.metrics.pairwise import cosine_similarity
+
+# 1. 코사인 유사도를 계산하는 함수 정의
+def cal_cosine_sim(v1, v2):
+    # 벡터의 내적
+    dot_product = np.dot(v1, v2)
+    # 벡터 v1과 v2의 크기 (자기 자신과의 내적의 제곱근)
+    norm_v1 = np.sqrt(np.dot(v1, v1))
+    norm_v2 = np.sqrt(np.dot(v2, v2))
+    # 코사인 유사도 계산
+    return dot_product / (norm_v1 * norm_v2)
+
+# 2. 두 벡터의 코사인 유사도 계산 (예시 벡터 sent_1과 sent_2)
+sent_1 = np.array([1, 2, 3])
+sent_2 = np.array([4, 5, 6])
+
+# 2-1. cal_cosine_sim() 함수 사용하여 유사도 계산
+cosine_sim_1 = cal_cosine_sim(sent_1, sent_2)
+
+# 3. scipy의 distance.cosine을 사용하여 코사인 유사도 계산
+cosine_distance = distance.cosine(sent_1, sent_2)
+scipy_cosine_sim = 1 - cosine_distance  # 코사인 거리 -> 유사도 변환
+
+# 4. scikit-learn의 pairwise.cosine_similarity() 함수 사용
+all_sent = np.array([sent_1, sent_2])
+scikit_learn_cosine_sim = cosine_similarity(all_sent)[0, 1]
+
+# 결과 출력
+print(f"cal_cosine_sim()에 의한 코사인 유사도: {cosine_sim_1}")
+print(f"scipy의 cosine()에 의한 코사인 유사도: {scipy_cosine_sim}")
+print(f"scikit-learn의 cosine_similarity()에 의한 코사인 유사도: {scikit_learn_cosine_sim}")
+

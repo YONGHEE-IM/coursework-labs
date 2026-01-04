@@ -1,0 +1,75 @@
+import numpy as np
+import pandas as pd
+
+np.set_printoptions(precision=6, suppress=True)
+PREVIOUS_MAX_ROWS = pd.options.display.max_rows # 원래 60이 기본.
+pd.options.display.max_rows = 20
+
+## practice-pandas_5~7
+
+# 문제 1
+
+# 아이리스(붓꽃) 데이터 불러오기
+url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
+iris = np.genfromtxt(url, delimiter=',', dtype='str')
+
+iris[:5]
+
+columns = ['꽃받침길이', '꽃받침너비', '꽃잎길이', '꽃잎너비', '품종']
+iris = pd.DataFrame(iris, columns=columns)
+iris[:5]
+
+iris.info()
+
+iris = iris.astype({'꽃받침길이': 'float64', '꽃받침너비': 'float64', '꽃잎길이': 'float64', '꽃잎너비': 'float64'})
+iris.info()
+
+eng_dict = {'꽃받침길이': 'sepal_length', 
+            '꽃받침너비': 'sepal_width', 
+            '꽃잎길이': 'petal_length', 
+            '꽃잎너비': 'petal_width', 
+            '품종': 'species'}
+
+iris.rename(columns=eng_dict, inplace=True)
+iris
+
+iris = iris.reindex(columns=['species', 'sepal_length', 'sepal_width', 'petal_length', 'petal_width'])
+iris
+
+# 품종별로 처음 5개의 항목을 구성된 데이터프레임을 생성한다.
+iris_5 = pd.DataFrame()
+
+for i in range(0, 101, 50):
+    iris_5 = pd.concat([iris_5, iris.iloc[i:i+5]])
+
+iris_5
+
+# 품종별로 그룹화된 열별 값들의 합을 계산한다.
+iris_5.groupby('species').sum()
+
+# 연속형 데이터를 구간으로 나누어 범주화를 실행할 수 있다.
+np.random.seed(17)
+
+arr = pd.Series(np.random.randn(20))
+arr
+
+# hist() 메서드는 기본 키워드 인자를 사용하면 값의 범위를 10등분해서 각 구간에 속한 값들의 개수를 히스토그램으로 보여준다.
+arr.hist()
+
+# 시리즈에 포함된 전체 값의 범위를 4등분한 다음에 막대그래프를 그려보자.
+factor = pd.cut(arr, bins=4)
+factor
+
+# values_count() 메서를 이용하여 구간별 항목의 개수를 확인한다.
+factor.value_counts()
+
+# 아래 코드는 sort_index() 메서드를 이용하여 구간을 정렬한 다음에 막대그래프를 그린다.
+factor.value_counts().sort_index()
+
+factor.value_counts().sort_index().plot.bar(rot=0, grid=True)
+
+# 4등분한 구간에 라벨을 붙이면 구간 정보의 의미를 보다 정확히 전달한다.
+factor = pd.cut(arr, bins=4, labels=['A', 'B', 'C', 'D'])
+factor
+
+factor.value_counts().sort_index().plot.bar(rot=0, grid=True)

@@ -1,0 +1,442 @@
+## 문제 1
+
+# (1)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_model1():
+    model = models.Sequential()
+    model.add(layers.Conv2D(filters=1, kernel_size=(3, 3), strides=(1, 1), padding='same', input_shape=(28, 28, 1)))
+    return model
+
+
+# (2)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_model2():
+    model = models.Sequential()
+    model.add(layers.Conv2D(filters=4, kernel_size=(3, 3), strides=(1, 1), padding='same', input_shape=(28, 28, 1)))
+    model.add(layers.Conv2D(filters=4, kernel_size=(3, 3), strides=(1, 1), padding='same'))
+    return model
+
+
+# (3)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_model3():
+    model = models.Sequential()
+    model.add(layers.Conv2D(filters=2, kernel_size=(3, 3), strides=(1, 1), padding='same', input_shape=(28, 28, 1)))
+    model.add(layers.Conv2D(filters=4, kernel_size=(3, 3), strides=(1, 1), padding='same'))
+    model.add(layers.Conv2D(filters=8, kernel_size=(3, 3), strides=(1, 1)))
+    return model
+
+# 모델 생성 및 출력 크기 확인
+model = build_model3()
+# 가상의 이미지 텐서 생성 (28x28 크기의 흑백 이미지 한 장)
+input_tensor = tf.random.normal([1, 28, 28, 1])
+output_tensor = model(input_tensor)
+print("Output shape:", output_tensor.shape)
+
+## 문제 2
+
+# (1)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_mlp_model(num_classes):
+    model = models.Sequential()
+    model.add(layers.Flatten(input_shape=(32, 32, 3)))  # CIFAR-10 이미지 크기 (32, 32, 3)
+    
+    # 각 Dense 레이어 추가
+    model.add(layers.Dense(4096, activation='relu'))
+    model.add(layers.Dense(1024, activation='relu'))
+    model.add(layers.Dense(256, activation='relu'))
+    model.add(layers.Dense(64, activation='relu'))
+    
+    # 마지막 Softmax 레이어 추가
+    model.add(layers.Dense(num_classes, activation='softmax'))
+    
+    return model
+
+# (2)
+import tensorflow as tf
+
+def main():
+    num_classes = 10  # CIFAR-10 데이터셋의 클래스 개수
+    
+    # MLP 모델 빌드
+    model = build_mlp_model(num_classes)
+    
+    # Adam 옵티마이저 설정
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    
+    # 모델 컴파일
+    model.compile(optimizer=optimizer,
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+    
+    # 데이터 로드
+    x_train = np.load('dataset/x_train.npy')
+    y_train = np.load('dataset/y_train.npy')
+    x_test = np.load('dataset/x_test.npy')
+    y_test = np.load('dataset/y_test.npy')
+    
+    # 모델 학습
+    model.fit(x_train, y_train, epochs=10, batch_size=32, validation_data=(x_test, y_test))
+
+if __name__ == "__main__":
+    main()
+
+# (3)
+import tensorflow as tf
+import numpy as np
+
+def main():
+    num_classes = 10  # CIFAR-10 데이터셋의 클래스 개수
+    
+    # MLP 모델 빌드
+    model = build_mlp_model(num_classes)
+    
+    # Adam 옵티마이저 설정
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    
+    # 모델 컴파일
+    model.compile(optimizer=optimizer,
+                  loss='sparse_categorical_crossentropy',  # 손실 함수 설정
+                  metrics=['accuracy'])  # 평가 지표 설정
+    
+    # 데이터 로드
+    x_train = np.load('dataset/x_train.npy')
+    y_train = np.load('dataset/y_train.npy')
+    x_test = np.load('dataset/x_test.npy')
+    y_test = np.load('dataset/y_test.npy')
+    
+    # 모델 학습
+    model.fit(x_train, y_train, epochs=10, batch_size=32, validation_data=(x_test, y_test))
+
+if __name__ == "__main__":
+    main()
+
+# (4)
+import tensorflow as tf
+import numpy as np
+
+def main(epochs):
+    num_classes = 10  # CIFAR-10 데이터셋의 클래스 개수
+    
+    # MLP 모델 빌드
+    model = build_mlp_model(num_classes)
+    
+    # Adam 옵티마이저 설정
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    
+    # 모델 컴파일
+    model.compile(optimizer=optimizer,
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+    
+    # 데이터 로드
+    x_train = np.load('dataset/x_train.npy')
+    y_train = np.load('dataset/y_train.npy')
+    x_test = np.load('dataset/x_test.npy')
+    y_test = np.load('dataset/y_test.npy')
+    
+    # 모델 학습
+    model.fit(x_train, y_train,
+              epochs=epochs,
+              batch_size=64,
+              validation_split=0.2,
+              shuffle=True,
+              verbose=2)
+
+if __name__ == "__main__":
+    main(epochs=10)
+
+## 문제 (3)
+
+# (1)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_mlp_model(num_classes):
+    model = models.Sequential()
+    
+    # Flatten 레이어 추가: 2차원 이미지를 1차원으로 변환
+    model.add(layers.Flatten(input_shape=(32, 32, 3)))  # CIFAR-10 이미지 크기 (32, 32, 3)
+    
+    # Dense 레이어 추가 (ReLU 활성화 함수 사용)
+    model.add(layers.Dense(4096, activation='relu'))
+    model.add(layers.Dense(1024, activation='relu'))
+    model.add(layers.Dense(256, activation='relu'))
+    model.add(layers.Dense(64, activation='relu'))
+    
+    # 마지막 Dense 레이어 추가 (Softmax 활성화 함수 사용)
+    model.add(layers.Dense(num_classes, activation='softmax'))
+    
+    return model
+
+# (2)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_cnn_model(img_shape, num_classes):
+    model = models.Sequential()
+    
+    # 첫 번째 Conv2D 레이어
+    model.add(layers.Conv2D(16, (3, 3), padding="same", activation="relu", input_shape=img_shape))
+    
+    # 두 번째 Conv2D 레이어
+    model.add(layers.Conv2D(32, (3, 3), padding="same", activation="relu"))
+    
+    # 첫 번째 MaxPool2D 레이어 (이미지 크기를 2배 줄임)
+    model.add(layers.MaxPool2D(pool_size=(2, 2)))
+    
+    # 세 번째 Conv2D 레이어
+    model.add(layers.Conv2D(64, (3, 3), padding="same", strides=(2, 2), activation="relu"))
+    
+    # 네 번째 Conv2D 레이어
+    model.add(layers.Conv2D(64, (3, 3), padding="same", strides=(2, 2), activation="relu"))
+    
+    # 두 번째 MaxPool2D 레이어 (이미지 크기를 2배 줄임)
+    model.add(layers.MaxPool2D(pool_size=(2, 2)))
+    
+    # Flatten 레이어
+    model.add(layers.Flatten())
+    
+    # 첫 번째 Dense 레이어
+    model.add(layers.Dense(128, activation="relu"))
+    
+    # 마지막 Dense 레이어 (Softmax 활성화 함수 사용)
+    model.add(layers.Dense(num_classes, activation="softmax"))
+    
+    return model
+
+# (3)
+import tensorflow as tf
+
+def run_model(model, x_train, y_train, x_test, y_test, epochs):
+    # Adam 옵티마이저 설정
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+    
+    # 모델 컴파일
+    model.compile(optimizer=optimizer,
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+    
+    # 모델 학습
+    history = model.fit(x_train, y_train,
+                        epochs=epochs,
+                        batch_size=64,
+                        validation_data=(x_test, y_test),
+                        validation_split=0.2,
+                        shuffle=True,
+                        verbose=2)
+    
+    return history
+
+# (4)
+import tensorflow as tf
+
+def run_model(model, x_train, y_train, x_test, y_test, epochs, optimizer):
+    # 모델 컴파일
+    model.compile(optimizer=optimizer,
+                  loss='sparse_categorical_crossentropy',  # 손실 함수 설정
+                  metrics=['accuracy'])  # 평가 지표 설정
+    
+    # 모델 학습
+    history = model.fit(x_train, y_train,
+                        epochs=epochs,
+                        batch_size=64,
+                        validation_data=(x_test, y_test),
+                        validation_split=0.2,
+                        shuffle=True,
+                        verbose=2)
+    
+    return history
+
+# (5)
+import tensorflow as tf
+
+def run_model(model, x_train, y_train, x_test, y_test, epochs, optimizer):
+    # 모델 컴파일
+    model.compile(optimizer=optimizer,
+                  loss='sparse_categorical_crossentropy',  # 손실 함수 설정
+                  metrics=['accuracy'])  # 평가 지표 설정
+    
+    # 모델 학습
+    history = model.fit(x_train, y_train,
+                        epochs=epochs,  # 에포크 수 설정
+                        batch_size=64,  # 배치 크기 설정
+                        validation_split=0.2,  # 검증 데이터 비율 설정
+                        shuffle=True,  # 데이터 셔플 설정
+                        verbose=2,  # 학습 출력 레벨 설정
+                        validation_data=(x_test, y_test))  # 검증 데이터 설정
+    
+    return history
+
+## 문제 4
+
+# (1)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_first_block(input_shape):
+    model = models.Sequential()
+    
+    # 첫 번째 Conv2D 레이어
+    model.add(layers.Conv2D(64, (3, 3), padding='same', activation='relu', input_shape=input_shape))
+    
+    # 두 번째 Conv2D 레이어
+    model.add(layers.Conv2D(64, (3, 3), padding='same', activation='relu'))
+    
+    # MaxPooling2D 레이어 (이미지 크기 2배 축소)
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    
+    return model
+
+# (2)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_second_block(input_shape):
+    model = models.Sequential()
+    
+    # 첫 번째 Conv2D 레이어
+    model.add(layers.Conv2D(128, (3, 3), padding='same', activation='relu', input_shape=input_shape))
+    
+    # 두 번째 Conv2D 레이어
+    model.add(layers.Conv2D(128, (3, 3), padding='same', activation='relu'))
+    
+    # MaxPooling2D 레이어 (이미지 크기 2배 축소)
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    
+    return model
+
+# (3)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_third_block(input_shape):
+    model = models.Sequential()
+    
+    # 첫 번째 Conv2D 레이어
+    model.add(layers.Conv2D(256, (3, 3), padding='same', activation='relu', input_shape=input_shape))
+    
+    # 두 번째 Conv2D 레이어
+    model.add(layers.Conv2D(256, (3, 3), padding='same', activation='relu'))
+    
+    # 세 번째 Conv2D 레이어
+    model.add(layers.Conv2D(256, (3, 3), padding='same', activation='relu'))
+    
+    # MaxPooling2D 레이어 (이미지 크기 2배 축소)
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    
+    return model
+
+# (4)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_fourth_block(input_shape):
+    model = models.Sequential()
+    
+    # 첫 번째 Conv2D 레이어
+    model.add(layers.Conv2D(512, (3, 3), padding='same', activation='relu', input_shape=input_shape))
+    
+    # 두 번째 Conv2D 레이어
+    model.add(layers.Conv2D(512, (3, 3), padding='same', activation='relu'))
+    
+    # 세 번째 Conv2D 레이어
+    model.add(layers.Conv2D(512, (3, 3), padding='same', activation='relu'))
+    
+    # MaxPooling2D 레이어 (이미지 크기 2배 축소)
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    
+    return model
+
+# (5)
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def build_fifth_block(input_shape):
+    model = models.Sequential()
+    
+    # 첫 번째 Conv2D 레이어
+    model.add(layers.Conv2D(512, (3, 3), padding='same', activation='relu', input_shape=input_shape))
+    
+    # 두 번째 Conv2D 레이어
+    model.add(layers.Conv2D(512, (3, 3), padding='same', activation='relu'))
+    
+    # 세 번째 Conv2D 레이어
+    model.add(layers.Conv2D(512, (3, 3), padding='same', activation='relu'))
+    
+    # MaxPooling2D 레이어 (이미지 크기 2배 축소)
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    
+    return model
+
+## 문제 5
+
+# ResidualBlock 클래스 구현
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+class ResidualBlock(layers.Layer):
+    def __init__(self, num_kernels, kernel_size):
+        super(ResidualBlock, self).__init__()
+        self.num_kernels = num_kernels
+        self.kernel_size = kernel_size
+
+        # 첫 번째 Conv2D 레이어
+        self.conv1 = layers.Conv2D(filters=self.num_kernels, kernel_size=self.kernel_size, 
+                                   padding="same", activation="relu")
+        
+        # 두 번째 Conv2D 레이어
+        self.conv2 = layers.Conv2D(filters=self.num_kernels, kernel_size=self.kernel_size, 
+                                   padding="same", activation=None)
+        
+        # 두 텐서를 더하는 Add 레이어 (Residual Connection)
+        self.add = layers.Add()
+
+    def call(self, inputs):
+        # 첫 번째 Conv2D 레이어 적용
+        x = self.conv1(inputs)
+        
+        # 두 번째 Conv2D 레이어 적용
+        x = self.conv2(x)
+        
+        # Residual Connection: 입력과 출력을 더함
+        x = self.add([x, inputs])
+        
+        return x
+
+# build_resnet 함수 구현
+def build_resnet(input_shape, num_blocks, num_kernels, kernel_size):
+    inputs = layers.Input(shape=input_shape)
+    
+    # 입력에 Conv2D 레이어를 추가하여 모델의 시작을 구성합니다.
+    x = layers.Conv2D(64, (7, 7), padding="same", activation="relu")(inputs)
+    
+    # ResidualBlock을 지정된 수만큼 쌓음
+    for _ in range(num_blocks):
+        x = ResidualBlock(num_kernels, kernel_size)(x)
+    
+    # GlobalAveragePooling2D 후 Fully Connected Layer
+    x = layers.GlobalAveragePooling2D()(x)
+    x = layers.Dense(10, activation='softmax')(x)  # num_classes = 10 (CIFAR-10 예시)
+    
+    # 모델 정의
+    model = models.Model(inputs, x)
+    
+    return model
+
+# 모델 컴파일 및 확인
+# ResNet 모델 생성
+model = build_resnet(input_shape=(32, 32, 3), num_blocks=3, num_kernels=64, kernel_size=(3, 3))
+
+# 모델 요약 출력
+model.summary()
+
+

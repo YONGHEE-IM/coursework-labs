@@ -1,0 +1,157 @@
+print('  '.join('abcd'))
+print('   '.join('abcd'))
+
+# Test
+
+# 1
+korean = 80
+english = 75
+math = 55
+
+total_score = korean + english + math
+average = total_score/3
+
+print(average)
+
+# 2
+number = 13
+if number%2 == 0:
+    print('짝수')
+else:
+    print('홀수')
+
+# 3
+resident_registration_number = "881120-1068264"
+
+date_of_birth = resident_registration_number[:6]
+rest_number = resident_registration_number[7:]
+
+print("연월일:", date_of_birth)
+print("뒤의 숫자:", rest_number)
+
+# 4
+
+resident_registration_number = "881120-1068234"
+gender_number = resident_registration_number[7]
+
+print("성별을 나타내는 숫자:", gender_number)
+
+# 5
+
+string = "a:b:c:d:"
+new_string = string.replace(":", "#")
+new_string = new_string[:-1]
+
+print(new_string)
+
+# 6
+numbers = [1, 3, 5, 4, 2]
+numbers.sort()
+numbers.reverse()
+
+print(numbers)
+
+# 7
+words = ['Life', 'is', 'too', 'short']
+sentence = " ".join(words)
+
+print(sentence)
+
+# 8
+my_tuple = (1, 2, 3)
+my_list = list(my_tuple)
+my_list.append(4)
+new_tuple = tuple(my_list)
+
+print(new_tuple)
+
+# 10 
+a = {'A':90, 'B':80, 'C':70}
+value_b = a['B']
+
+print(value_b)
+
+# 11
+a = [1,1,1,2,2,3,3,3,4,4,5]
+list_a = set(a)
+new_list_a = list(list_a)
+
+print(new_list_a)
+
+# 문제1
+print(7+3)
+
+# 문제2
+number = 3.1415
+rounded_number = round(number, 2)
+
+print(rounded_number)
+
+# 문제3
+A = 'Hello, World!'
+Hello_A = A[:5]
+
+print(Hello_A)
+
+# 문제4
+B = 'Python'
+upper_B = B.upper()
+
+print(upper_B)
+
+# 문제5
+C = [1,2,3,4,5]
+C[0],C[-1] = C[-1],C[0]
+
+print(C)
+
+# 문제6
+D = [5,2,7,1,9]
+D.sort()
+
+print(D)
+
+# 문제7
+fruits = ('apple', 'banana', 'cherry')
+first_fruits = fruits[0]
+
+print(first_fruits)
+
+# 문제8
+tuple1 = (1,2,3)
+tuple2 = (4,5,6)
+
+merged_tuple = tuple1 + tuple2
+
+print(merged_tuple)
+
+# 문제9
+fruits_dict = {'apple':3, 'banana':5, 'cherry':2}
+
+print(fruits_dict['banana'])
+
+# 문제10
+fruits_dict = {'apple':3, 'banana':5, 'cherry':2}
+
+fruits_dict['orange'] = 4
+
+print(fruits_dict)
+
+
+# 문제 11
+set1 = {1,2,3}
+set2 = {2,3,4}
+
+intersection = set1.intersection(set2)
+
+print(intersection)
+
+# 문제 12
+a = True
+b = False
+
+result = a and b
+
+print(result)
+
+

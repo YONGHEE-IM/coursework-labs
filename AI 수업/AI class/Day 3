@@ -1,0 +1,199 @@
+today = '일요일'
+if today == '일요일':
+    print('게임한판')
+else:
+    print('폰 5분만')
+print('공부시작')
+
+
+temp = 40 # 체온
+if temp >= 39:
+    print('고열입니다')
+elif temp >= 38:
+    print('미열입니다')
+else:
+    print('정상입니다')
+          
+for x in range(10):
+    print('팔벌려뛰기')
+
+for x in range(10):
+    print(f'팔벌려 {x}번 뛰기')
+
+for x in range(1, 10):
+    print(x)
+
+for x in range(1, 10, 2):
+    print(x)
+
+my_list = [1, 2, 3]
+for x in my_list:
+    print(x)
+    
+my_tuple = (1, 2, 3)
+for x in my_tuple:
+    print(x)
+
+person = {'이름': '나귀욤', '나이': 7,'키': 120, '몸무게': 23}
+for v in person.values():
+    print(v)
+
+person = {'이름': '나귀욤', '나이': 7,'키': 120, '몸무게': 23}
+for k in person.keys():
+    print(k)
+
+person = {'이름': '나귀욤', '나이': 7,'키': 120, '몸무게': 23}
+for k,v in person.items():
+    print(k,v)
+
+fruit = 'apple'
+for x in fruit:
+    print(x)
+
+max = 25 # 최대 허용 무게
+weight = 0 # 현재 캐리어 무게
+item = 3 # 각 짐의 무게
+
+while weight + item <= max:
+    weight += item
+    print(weight)
+    print('짐을 추가합니다')
+print(f'총 무게는 {weight} 입니다')
+
+drama = ['시즌1', '시즌2', '시즌3', '시즌4', '시즌5']
+for x in drama:
+    if x == '시즌3':
+        print('재미 없대, 그만 보자')
+        break
+    print(f'{x} 시청')
+
+drama = ['시즌1', '시즌2', '시즌3', '시즌4', '시즌5']
+for x in drama:
+    if x == '시즌3':
+        print('재미 없대, 그만 보자')
+        continue
+    print(f'{x} 시청')
+
+
+# 문제1
+a = "Life is too short, you need python"
+
+if "wife" in a: 
+    print("wife")
+elif "python" in a and "you" not in a: 
+    print("python")
+elif "shirt" not in a: 
+    print("shirt")
+elif "need" in a: 
+    print("need")
+else: 
+    print("none")
+
+
+# 문제2
+result = 0
+
+i = 1
+while i <= 1000:
+    if i % 3 == 0: 
+        result += 1
+    i += 1
+
+print(result)
+
+# 문제3
+i = 0
+while True:
+    i += 1
+    if i > 5:
+        break
+    print('*' * i)
+
+# 문제4
+for i in range(1, 101):
+    print(i)
+
+# 문제5
+A = [70, 60, 55, 75, 95, 90, 80, 80, 85, 100]
+total = 0
+
+for score in A:
+    total += score
+
+average = total / len(A)
+print(average)
+
+# 문제6
+numbers = [1, 2, 3, 4, 5]
+
+results = []
+for n in numbers:
+    if n % 2 == 1:
+        results.append(n*2)
+print(results)
+
+# 문제1
+number = int(input("정수를 입력하세요: "))
+
+if number % 2 == 0:
+    print("입력한 정수는 짝수입니다.")
+else:
+    print("입력한 정수는 홀수입니다.")
+
+# 문제2
+num1 = int(input("첫 번째 정수를 입력하세요: "))
+num2 = int(input("두 번째 정수를 입력하세요: "))
+num3 = int(input("세 번째 정수를 입력하세요: "))
+
+largest = num1
+
+if num2 > largest:
+    largest = num2
+
+if num3 > largest:
+    largest = num3
+
+print(f"가장 큰 수는 : {largest}입니다.")
+
+# 문제3
+n = int(input("숫자를 입력하세요: "))
+
+total_sum = sum(range(1, n+1))
+
+print(f'1부터 {n} 까지의 합은: {total_sum}입니다.')
+
+# 문제4
+fn = int(input("피보나치 수열의 항 개수를 입력하세요: "))
+
+fibonacci_sequence = []
+
+a, b = 1, 1
+fibonacci_sequence.append(a)
+
+if n > 1:
+    fibonacci_sequence.append(b)
+
+for _ in range(2,n):
+    a,b = b, a+b
+    fibonacci_sequence.append(b)
+
+print(f'피보나치 수열의 {n}번째 항까지의 수열')
+print(fibonacci_sequence)
+
+# 문제5
+for i in range(1,10):
+    for j in range(1, 10):
+        print(f"{i} x {j} = {i * j}\t")
+    print()
+
+# 문제 6
+text = input("문자열을 입력하세요: ")
+
+vowels = 'aeiou'
+
+count = 0
+for char in text:
+    if char.lower() in vowels:
+        count += 1
+
+print(f'문자열에서 모음의 개수는: {count}')

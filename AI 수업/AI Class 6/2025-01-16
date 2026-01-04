@@ -1,0 +1,146 @@
+## 실습 1
+# Q-Learning 학습 함수 코드
+import numpy as np
+
+def q_learning(env, q_table, num_episodes, alpha, gamma, epsilon):
+    """
+    Q-Learning 학습을 수행하는 함수
+    
+    Args:
+        env: 환경 (OpenAI Gym과 같은 환경)
+        q_table (np.ndarray): Q-Table
+        num_episodes (int): 학습 에피소드 수
+        alpha (float): 학습률
+        gamma (float): 할인율
+        epsilon (float): 탐험 비율 (ε-greedy)
+
+    Returns:
+        np.ndarray: 학습된 Q-Table
+    """
+    for episode in range(num_episodes):
+        state = env.reset()  # 환경 초기화
+        done = False
+        
+        while not done:
+            # 1A. 현재 상태에서 행동을 결정 (ε-greedy 정책 사용)
+            if np.random.rand() < epsilon:
+                action = env.action_space.sample()  # 무작위 행동 (탐험)
+            else:
+                action = np.argmax(q_table[state])  # 최적 행동 선택 (활용)
+
+            # 환경에서 행동 수행 및 보상, 다음 상태 반환
+            next_state, reward, done, _ = env.step(action)
+
+            # 1B. 오차 계산
+            error = reward + gamma * np.max(q_table[next_state]) - q_table[state, action]
+
+            # 1C. Q-Table 업데이트
+            q_table[state, action] += alpha * error
+
+            # 상태 업데이트
+            state = next_state
+
+    return q_table
+
+# 사용 예시
+import gym
+
+# 환경 생성
+env = gym.make("FrozenLake-v1", is_slippery=False)
+
+# Q-Table 초기화
+state_size = env.observation_space.n
+action_size = env.action_space.n
+q_table = np.zeros((state_size, action_size))
+
+# Q-Learning 파라미터
+num_episodes = 1000
+alpha = 0.1  # 학습률
+gamma = 0.99  # 할인율
+epsilon = 0.1  # 탐험 비율
+
+# Q-Learning 학습 수행
+trained_q_table = q_learning(env, q_table, num_episodes, alpha, gamma, epsilon)
+
+# 학습된 Q-Table 출력
+print("학습된 Q-Table:")
+print(trained_q_table)
+
+## 실습 2
+import numpy as np
+import random
+
+def epsilon_greedy_q_learning(env, q_table, num_episodes, alpha, gamma, epsilon, epsilon_decay, epsilon_end):
+    """
+    Epsilon-greedy를 적용한 Q-Learning 학습을 수행하는 함수
+    
+    Args:
+        env: 학습 환경 (OpenAI Gym과 같은 환경)
+        q_table (np.ndarray): Q-Table
+        num_episodes (int): 학습 에피소드 수
+        alpha (float): 학습률
+        gamma (float): 할인율
+        epsilon (float): 탐험 비율 (초기 값)
+        epsilon_decay (float): epsilon 감가율
+        epsilon_end (float): epsilon의 최소값
+        
+    Returns:
+        np.ndarray: 학습된 Q-Table
+    """
+    for episode in range(num_episodes):
+        state = env.reset()  # 환경 초기화
+        done = False
+        
+        while not done:
+            # 1A. epsilon 값이 epsilon_end 보다 작아지지 않도록 보장
+            epsilon = max(epsilon, epsilon_end)
+            
+            # 1B. epsilon 확률로 랜덤 액션, (1 - epsilon) 확률로 Q-Table 기반 행동 선택
+            if random.random() < epsilon:
+                action = env.action_space.sample()  # 랜덤 행동 선택
+            else:
+                action = np.argmax(q_table[state])  # Q-Table 기반 최적 행동 선택
+            
+            # 환경에서 행동 수행 및 보상, 다음 상태 반환
+            next_state, reward, done, _ = env.step(action)
+            
+            # 1D. 오차 계산
+            error = reward + gamma * np.max(q_table[next_state]) - q_table[state, action]
+            
+            # 1E. Q-Table 업데이트
+            q_table[state, action] += alpha * error
+            
+            # 상태 업데이트
+            state = next_state
+
+        # 1F. Epsilon 값 업데이트 (감가율 적용)
+        epsilon *= (1 - epsilon_decay)
+        
+    return q_table
+
+# 사용 예시
+import gym
+
+# 환경 생성
+env = gym.make("FrozenLake-v1", is_slippery=False)
+
+# Q-Table 초기화
+state_size = env.observation_space.n
+action_size = env.action_space.n
+q_table = np.zeros((state_size, action_size))
+
+# Q-Learning 파라미터
+num_episodes = 1000
+alpha = 0.1  # 학습률
+gamma = 0.99  # 할인율
+epsilon = 1.0  # 초기 탐험 비율
+epsilon_decay = 0.01  # 탐험 비율 감가율
+epsilon_end = 0.1  # 최소 탐험 비율
+
+# Epsilon-greedy Q-Learning 수행
+trained_q_table = epsilon_greedy_q_learning(env, q_table, num_episodes, alpha, gamma, epsilon, epsilon_decay, epsilon_end)
+
+# 학습된 Q-Table 출력
+print("학습된 Q-Table:")
+print(trained_q_table)
+

@@ -1,0 +1,40 @@
+DB 서버에 접근
+DBMS : 데이터베이스를 관리하는 시스템 
+
+컴퓨터 키고 DB 연습 공부 하는 순서 
+1. DB 서버 연결
+2. DBMS 프로그램 켜기 
+
+---
+작성한 쿼리문은 다른 저장매체에 백업하기
+
+DBMS 기본 사용문법 
+
+DDL(Data Definition Language) : 데이터베이스에 관여 
+- create, drop, truncate, alter
+- 데이터타입, 제약조건
+
+DML(Data Manipulation L) : 테이블(데이터)에 관여 
+- insert, delete, update, select
+
+DCL(Data Control L) : 사용자 권한에 관여
+- grant, revoke
+
+TCL(Transaction Control L) : 명령에 관여
+- commit, rollback, savepoint
+
+데이터 타입 = 데이터 종류
+
+숫자, 문자, 특수문자, 연산자(+, -, /, *), 공백
+
+int 숫자 정수 
+float 실수(소수점 나온다)
+char (character) 문자
+varchar (variable character) 가변 문자
+text 문자
+date 날짜
+datetime 날짜 시간
+
+ 
+
+

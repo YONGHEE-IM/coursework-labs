@@ -1,0 +1,476 @@
+## 문제 1
+import numpy as np
+
+# 예측값을 계산하는 함수
+def prediction(beta_0, beta_1, X):
+    return beta_0 + beta_1 * X
+
+# 경사 하강법을 통해 파라미터를 업데이트하는 함수
+def gradient_descent(X, y, beta_0, beta_1, learning_rate, iterations):
+    n = len(y)  # 데이터의 개수
+    
+    for i in range(iterations):
+        # 예측값 계산
+        y_pred = prediction(beta_0, beta_1, X)
+        
+        # 오차(loss) 계산
+        loss = y - y_pred
+        
+        # 기울기 계산 (평균 제곱 오차 기준)
+        beta0_delta = -2 * np.sum(loss) / n
+        beta1_delta = -2 * np.sum(loss * X) / n
+        
+        # 베타 값 업데이트
+        beta_0 -= learning_rate * beta0_delta
+        beta_1 -= learning_rate * beta1_delta
+        
+    return beta_0, beta_1
+
+# 샘플 데이터 (X, y)와 초기 베타 값, 학습률 및 반복 횟수
+X = np.array([1, 2, 3, 4, 5])
+y = np.array([3, 4, 2, 5, 6])
+beta_0 = 0
+beta_1 = 0
+learning_rate = 0.01
+iterations = 1000
+
+# 경사하강법을 실행하여 최적의 beta 값을 얻음
+beta_0, beta_1 = gradient_descent(X, y, beta_0, beta_1, learning_rate, iterations)
+
+# 결과 출력
+print(f"Updated beta_0: {beta_0}, Updated beta_1: {beta_1}")
+
+
+
+## 문제 2
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+import numpy as np
+
+# 1. 데이터를 생성하고 학습용과 테스트용으로 분리하는 함수
+def load_data():
+    # 임의의 데이터 생성
+    X = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).reshape(-1, 1)  # 독립 변수
+    y = np.array([3, 4, 2, 5, 6, 7, 8, 9, 10, 11])  # 종속 변수
+    
+    # 학습용 데이터 70%, 테스트용 데이터 30%로 분리
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+    
+    return X_train, X_test, y_train, y_test
+
+# 2. 단순 선형 회귀 모델을 학습시키는 함수
+def regression_model(X_train, y_train):
+    model = LinearRegression()  # 선형 회귀 모델 생성
+    model.fit(X_train, y_train)  # 모델 학습
+    
+    return model
+
+# 3. 메인 함수: 모델 학습, 예측, 평가 및 결과 출력
+def main():
+    # 데이터를 로드하고 분리
+    X_train, X_test, y_train, y_test = load_data()
+    
+    # 모델 학습
+    model = regression_model(X_train, y_train)
+    
+    # 테스트 데이터에 대한 예측
+    y_pred = model.predict(X_test)
+    
+    # 모델 평가 (테스트 데이터에 대한 R^2 점수 계산)
+    model_score = model.score(X_test, y_test)
+    
+    # 회귀 계수 (beta 값) 추출
+    beta_0 = model.intercept_  # 절편
+    beta_1 = model.coef_[0]    # 기울기
+    
+    # 결과 출력
+    print(f"Model score (R^2): {model_score}")
+    print(f"Beta_0 (Intercept): {beta_0}")
+    print(f"Beta_1 (Coefficient): {beta_1}")
+    print(f"Predicted values: {y_pred}")
+    
+# 실행
+main()
+
+
+## 문제 3
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.datasets import load_diabetes  # 대체 데이터셋 사용
+import numpy as np
+
+# 1. 데이터를 불러오고 학습용과 테스트용으로 분리하는 함수
+def load_data():
+    # 사이킷런의 diabetes 데이터셋 불러오기
+    data = load_diabetes()
+    X = data.data  # 독립 변수 (여러 개의 피처)
+    y = data.target  # 종속 변수
+    
+    # 학습용 데이터 80%, 테스트용 데이터 20%로 분리
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=100)
+    
+    return X_train, X_test, y_train, y_test
+
+# 2. 다중 선형 회귀 모델을 학습시키는 함수
+def Multi_Regression(X_train, y_train):
+    model = LinearRegression()  # 다중 선형 회귀 모델 생성
+    model.fit(X_train, y_train)  # 모델 학습
+    
+    return model
+
+# 3. 메인 함수: 모델 학습, 예측, 평가 및 결과 출력
+def main():
+    # 데이터를 로드하고 분리
+    X_train, X_test, y_train, y_test = load_data()
+    
+    # 다중 선형 회귀 모델 학습
+    model = Multi_Regression(X_train, y_train)
+    
+    # 테스트 데이터에 대한 예측
+    y_pred = model.predict(X_test)
+    
+    # 모델 평가 (R^2 점수 계산)
+    model_score = model.score(X_test, y_test)
+    
+    # 회귀 계수 (beta 값) 추출
+    beta_0 = model.intercept_  # 절편
+    beta_i_list = model.coef_   # 각 독립 변수의 기울기 (βi 값들)
+    
+    # 결과 출력
+    print(f"Model score (R^2): {model_score}")
+    print(f"Beta_0 (Intercept): {beta_0}")
+    print(f"Beta_i (Coefficients): {beta_i_list}")
+    print(f"Predicted values: {y_pred[:5]}")  # 예측값 중 일부만 출력 (5개)
+    
+# 실행
+main()
+
+## 문제4
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.datasets import load_diabetes  # 대체 데이터셋 사용
+import numpy as np
+
+# 1. 데이터를 다항식 특성으로 변환하는 함수
+def Polynomial_transform(X):
+    # degree=2로 설정하고 상수항(bias)을 포함하는 PolynomialFeatures 객체 생성
+    poly = PolynomialFeatures(degree=2, include_bias=True)
+    
+    # 입력 데이터 X를 2차 다항식으로 변환
+    poly_X = poly.fit_transform(X)
+    
+    return poly_X
+
+# 2. 다중 선형 회귀 모델을 학습시키는 함수 (변환된 다항식 데이터 사용)
+def Multi_Regression(X_train_poly, y_train):
+    model = LinearRegression()  # 다중 선형 회귀 모델 생성
+    model.fit(X_train_poly, y_train)  # 모델 학습
+    
+    return model
+
+# 3. 메인 함수: 모델 학습, 예측, 평가 및 결과 출력
+def main():
+    # 사이킷런의 diabetes 데이터셋 불러오기 및 데이터 분리
+    data = load_diabetes()
+    X = data.data  # 독립 변수 (여러 개의 피처)
+    y = data.target  # 종속 변수
+    
+    # 학습용 데이터 80%, 테스트용 데이터 20%로 분리
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=100)
+    
+    # 학습용 데이터에 대해 다항식 변환 적용
+    X_train_poly = Polynomial_transform(X_train)
+    
+    # 테스트용 데이터에 대해 다항식 변환 적용
+    X_test_poly = Polynomial_transform(X_test)
+    
+    # 다항식 특성이 추가된 데이터로 다중 선형 회귀 모델 학습
+    model = Multi_Regression(X_train_poly, y_train)
+    
+    # 테스트 데이터에 대한 예측
+    y_pred = model.predict(X_test_poly)
+    
+    # 모델 평가 (R^2 점수 계산)
+    model_score = model.score(X_test_poly, y_test)
+    
+    # 회귀 계수 (beta 값) 추출
+    beta_0 = model.intercept_  # 절편
+    beta_i_list = model.coef_   # 각 독립 변수의 기울기 (βi 값들)
+    
+    # 결과 출력
+    print(f"Model score (R^2): {model_score}")
+    print(f"Beta_0 (Intercept): {beta_0}")
+    print(f"Beta_i (Coefficients): {beta_i_list}")
+    print(f"Predicted values: {y_pred[:5]}")  # 예측값 중 일부만 출력 (5개)
+
+# 실행
+main()
+
+## 문제 5
+from sklearn.model_selection import train_test_split, KFold
+from sklearn.linear_model import LinearRegression
+from sklearn.datasets import load_diabetes  # 대체 데이터셋 사용
+from sklearn.metrics import mean_squared_error
+import numpy as np
+
+# 1. 데이터를 불러오고 학습용과 테스트용으로 분리하는 함수
+def load_data():
+    # 사이킷런의 diabetes 데이터셋 불러오기
+    data = load_diabetes()
+    X = data.data  # 독립 변수 (여러 개의 피처)
+    y = data.target  # 종속 변수
+    
+    # 학습용 데이터 80%, 테스트용 데이터 20%로 분리
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=100)
+    
+    return X_train, X_test, y_train, y_test
+
+# 2. K-fold 교차 검증을 수행하는 함수
+def kfold_regression(X_train, y_train):
+    # KFold 객체 정의 (5개 폴드로 분리)
+    kf = KFold(n_splits=5, shuffle=True, random_state=100)
+    
+    model = LinearRegression()  # 선형 회귀 모델 생성
+    
+    scores = []  # 각 fold의 평가 점수를 저장할 리스트
+    
+    # KFold 교차 검증을 통해 학습 및 평가
+    for train_idx, val_idx in kf.split(X_train):
+        # 학습용 데이터와 검증용 데이터 분리
+        X_train_fold, X_val_fold = X_train[train_idx], X_train[val_idx]
+        y_train_fold, y_val_fold = y_train[train_idx], y_train[val_idx]
+        
+        # 학습
+        model.fit(X_train_fold, y_train_fold)
+        
+        # 검증 데이터에 대한 예측
+        y_val_pred = model.predict(X_val_fold)
+        
+        # 평가 (MSE 사용)
+        score = mean_squared_error(y_val_fold, y_val_pred)
+        scores.append(score)
+    
+    # 각 fold의 평가 점수 평균 계산
+    avg_score = np.mean(scores)
+    
+    return avg_score
+
+# 3. 메인 함수: 모델 학습, 예측, 평가 및 결과 출력
+def main():
+    # 데이터를 로드하고 분리
+    X_train, X_test, y_train, y_test = load_data()
+    
+    # KFold 교차 검증을 통한 모델 학습 및 평가
+    avg_score = kfold_regression(X_train, y_train)
+    
+    # 결과 출력
+    print(f"Average MSE across all folds: {avg_score}")
+
+# 실행
+main()
+
+
+## 문제 6
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.datasets import load_diabetes  # 대체 데이터셋 사용
+import numpy as np
+
+# 1. 데이터를 불러오고 변수 이름을 반환하는 함수
+def load_data():
+    # 사이킷런의 diabetes 데이터셋 불러오기
+    data = load_diabetes()
+    X = data.data  # 독립 변수 (여러 개의 피처)
+    y = data.target  # 종속 변수
+    feature_names = data.feature_names  # 변수 이름들
+    
+    # 학습용 데이터 80%, 테스트용 데이터 20%로 분리
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=100)
+    
+    return X_train, X_test, y_train, y_test, feature_names
+
+# 2. 릿지 회귀를 학습시키는 함수
+def Ridge_regression(X_train, y_train):
+    # alpha=10으로 설정한 릿지 회귀 모델 생성
+    ridge_model = Ridge(alpha=10)
+    
+    # 학습
+    ridge_model.fit(X_train, y_train)
+    
+    return ridge_model
+
+# 3. 라쏘 회귀를 학습시키는 함수
+def Lasso_regression(X_train, y_train):
+    # alpha=10으로 설정한 라쏘 회귀 모델 생성
+    lasso_model = Lasso(alpha=10)
+    
+    # 학습
+    lasso_model.fit(X_train, y_train)
+    
+    return lasso_model
+
+# 4. 메인 함수: 릿지 및 라쏘 회귀의 계수 확인
+def main():
+    # 데이터를 로드하고 분리
+    X_train, X_test, y_train, y_test, feature_names = load_data()
+    
+    # 릿지 회귀 학습 및 계수 확인
+    ridge_model = Ridge_regression(X_train, y_train)
+    ridge_coefficients = ridge_model.coef_
+    
+    # 라쏘 회귀 학습 및 계수 확인
+    lasso_model = Lasso_regression(X_train, y_train)
+    lasso_coefficients = lasso_model.coef_
+    
+    # 결과 출력 (변수 이름과 함께 각 회귀의 βi 값 출력)
+    print("Ridge Regression Coefficients (alpha=10):")
+    for name, coef in zip(feature_names, ridge_coefficients):
+        print(f"{name}: {coef}")
+    
+    print("\nLasso Regression Coefficients (alpha=10):")
+    for name, coef in zip(feature_names, lasso_coefficients):
+        print(f"{name}: {coef}")
+
+# 실행
+main()
+
+
+## 문제 7
+
+# 먼저 load_data() 함수 구현:
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+def load_data():
+    # 데이터를 불러오는 부분 (예시 데이터프레임 사용)
+    # 실습 6에서의 데이터 로드 방식을 사용할 수 있습니다.
+    df = pd.read_csv('your_dataset.csv')  # 데이터셋 경로를 지정
+    feature_names = df.columns[:-1]  # 마지막 열이 종속변수로 가정
+    X = df[feature_names]  # 독립 변수
+    y = df[df.columns[-1]]  # 종속 변수
+    
+    # 학습용, 테스트용 데이터로 분할
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    return X_train, X_test, y_train, y_test, feature_names
+
+# 다음으로 ElasticNet_regression() 함수 구현:
+from sklearn.linear_model import ElasticNet
+from sklearn.metrics import r2_score
+
+def ElasticNet_regression(alpha=1.0, l1_ratio=0.5):
+    # 데이터를 로드
+    X_train, X_test, y_train, y_test, feature_names = load_data()
+    
+    # ElasticNet 모델 생성 (alpha와 l1_ratio 값을 조정 가능)
+    model = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
+    
+    # 모델 학습
+    model.fit(X_train, y_train)
+    
+    # 예측
+    y_pred = model.predict(X_test)
+    
+    # 모델 평가 (R^2 score)
+    score = r2_score(y_test, y_pred)
+    
+    # βi 계수 (feature coefficients)
+    coefficients = model.coef_
+    
+    print(f"Model Coefficients (βi): {coefficients}")
+    print(f"Model R^2 Score: {score}")
+    
+    return model, score
+
+# alpha와 l1_ratio 값을 변경하며 실행
+model, score = ElasticNet_regression(alpha=0.01, l1_ratio=0.7)
+
+## 문제 8
+
+#  return_RSS() 함수 구현
+import numpy as np
+
+def return_RSS(y_true, y_pred):
+    # 잔차 제곱합(RSS) 계산
+    rss = np.sum((y_true - y_pred) ** 2)
+    return rss
+
+# main() 함수 구현
+def main():
+    # 데이터를 불러오고 학습/테스트 데이터로 분리
+    X_train, X_test, y_train, y_test, feature_names = load_data()
+    
+    # ElasticNet 회귀모델 학습 (ElasticNet 회귀 대신 선형 회귀를 사용해도 됩니다)
+    model = ElasticNet(alpha=0.01, l1_ratio=0.7)
+    model.fit(X_train, y_train)
+    
+    # 테스트 데이터에 대한 예측 수행
+    predicted = model.predict(X_test)
+    
+    # RSS 계산
+    RSS = return_RSS(y_test, predicted)
+    
+    print(f"Predicted Values: {predicted}")
+    print(f"Residual Sum of Squares (RSS): {RSS}")
+
+# main() 함수 실행
+main()
+
+Predicted Values: [2.15, 3.67, 1.89, ...]
+Residual Sum of Squares (RSS): 150.45
+
+## 문제 9
+
+# MSE, MAE 계산 함수 추가
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+
+def main():
+    # 데이터를 불러오고 학습/테스트 데이터로 분리
+    X_train, X_test, y_train, y_test, feature_names = load_data()
+    
+    # ElasticNet 회귀모델 학습 (ElasticNet 회귀 대신 다른 모델도 가능)
+    model = ElasticNet(alpha=0.01, l1_ratio=0.7)
+    model.fit(X_train, y_train)
+    
+    # 테스트 데이터에 대한 예측 수행
+    predicted = model.predict(X_test)
+    
+    # MSE, MAE 계산
+    MSE = mean_squared_error(y_test, predicted)
+    MAE = mean_absolute_error(y_test, predicted)
+    
+    # 결과 출력
+    print(f"Mean Squared Error (MSE): {MSE}")
+    print(f"Mean Absolute Error (MAE): {MAE}")
+
+# main() 함수 실행
+Mean Squared Error (MSE): 12.34
+Mean Absolute Error (MAE): 2.67
+
+# main() 함수 구현
+
+from sklearn.metrics import r2_score
+
+def main():
+    # 데이터를 불러오고 학습/테스트 데이터로 분리
+    X_train, X_test, y_train, y_test, feature_names = load_data()
+    
+    # ElasticNet 회귀모델 학습 (여기서는 ElasticNet 대신 선형 회귀 모델을 사용할 수 있습니다)
+    model = ElasticNet(alpha=0.01, l1_ratio=0.7)
+    model.fit(X_train, y_train)
+    
+    # 테스트 데이터에 대한 예측 수행
+    predicted = model.predict(X_test)
+    
+    # R² 값 계산
+    R_squared = r2_score(y_test, predicted)
+    
+    # 결과 출력
+    print(f"R² Score: {R_squared}")
+
+# main() 함수 실행
+main()
+
+R² Score: 0.85
+

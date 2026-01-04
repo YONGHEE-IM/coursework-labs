@@ -1,0 +1,232 @@
+## 문제1
+from sklearn.cluster import KMeans
+import pandas as pd
+from sklearn.datasets import load_iris
+
+# iris 데이터를 로드하여 DataFrame으로 변환합니다.
+data = load_iris()
+iris = pd.DataFrame(data.data, columns=data.feature_names)
+iris['target'] = data.target
+
+def k_means_clus():
+    # KMeans 객체를 n_clusters=3, init='random', random_state=100으로 설정합니다.
+    kmeans = KMeans(n_clusters=3, init='random', random_state=100)
+    
+    # 'target' 컬럼을 제거하고 클러스터링을 수행합니다.
+    X = iris.drop('target', axis=1)
+    kmeans.fit(X)
+    
+    # 클러스터링 결과 레이블을 'cluster' 컬럼으로 추가합니다.
+    iris['cluster'] = kmeans.labels_
+
+# 함수 실행 및 결과 확인
+k_means_clus()
+iris_result = iris
+iris_result.head()
+
+## 문제 2
+from sklearn.mixture import GaussianMixture
+import pandas as pd
+from sklearn.datasets import load_iris
+
+# iris 데이터를 로드하여 DataFrame으로 변환합니다.
+data = load_iris()
+iris = pd.DataFrame(data.data, columns=data.feature_names)
+iris['target'] = data.target
+
+def gmm_clus():
+    # GaussianMixture 객체를 n_components=3, random_state=100으로 설정합니다.
+    gmm = GaussianMixture(n_components=3, random_state=100)
+    
+    # 'target' 컬럼을 제거하고 클러스터링을 수행합니다.
+    X = iris.drop('target', axis=1)
+    gmm.fit(X)
+    
+    # 클러스터링 결과 레이블을 'cluster' 컬럼으로 추가합니다.
+    iris['cluster'] = gmm.predict(X)
+
+# 함수 실행 및 결과 확인
+gmm_clus()
+iris_result = iris
+iris_result.head()
+
+## 문제 3
+import pandas as pd
+import numpy as np
+from sklearn.datasets import make_blobs
+from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import StandardScaler
+
+# 1. 타원형 분포의 데이터 생성
+X, y = make_blobs(n_samples=300, n_features=2, centers=3, cluster_std=0.8, random_state=0)
+
+# 2. 데이터 변환 (타원형 형태)
+transformation = [[0.6, -0.6], [-0.4, 0.8]]
+X_aniso = np.dot(X, transformation)
+X_aniso = StandardScaler().fit_transform(X_aniso)  # 스케일링
+
+# 데이터프레임으로 생성
+df = pd.DataFrame(X_aniso, columns=['Feature_1', 'Feature_2'])
+
+# K-Means 클러스터링 함수 정의
+def K_means():
+    # KMeans 객체 설정
+    kmeans = KMeans(init='random', n_clusters=3, random_state=0)
+    kmeans.fit(X_aniso)
+    # 클러스터링 결과 저장
+    df['kmeans_label'] = kmeans.labels_
+
+# GMM 클러스터링 함수 정의
+def GMM():
+    # GaussianMixture 객체 설정
+    gmm = GaussianMixture(n_components=3, random_state=0)
+    gmm.fit(X_aniso)
+    # 클러스터링 결과 저장
+    df['gmm_label'] = gmm.predict(X_aniso)
+
+# 함수 실행
+K_means()
+GMM()
+
+# 결과 확인
+df.head()
+
+## 문제 4
+from sklearn.datasets import load_wine
+from sklearn.decomposition import PCA
+
+# load_data 함수 정의
+def load_data(column_start=0):
+    # 사이킷런의 와인 데이터셋을 (X, y) 형식으로 불러옵니다.
+    X, y = load_wine(return_X_y=True)
+    # 지정된 column_start에서 연속되는 2개의 변수를 선택하여 X에 저장합니다.
+    X = X[:, column_start:column_start + 2]
+    return X, y
+
+# pca_data 함수 정의
+def pca_data(X):
+    # n_components=1로 PCA 객체를 정의합니다.
+    pca = PCA(n_components=1)
+    # 주성분 분석을 수행하여 1차원으로 축소합니다.
+    X_pca = pca.fit_transform(X)
+    return X_pca
+
+# load_data와 pca_data 실행 및 결과 확인
+X, y = load_data(column_start=0)  # column_start는 0으로 설정
+print("Original shape:", X.shape)
+
+X_pca = pca_data(X)
+print("Transformed shape:", X_pca.shape)
+
+
+## 문제 5
+from sklearn.datasets import load_wine
+from sklearn.manifold import TSNE
+
+# load_data 함수 정의
+def load_data(column_start=0):
+    # 사이킷런의 와인 데이터셋을 (X, y) 형식으로 불러옵니다.
+    X, y = load_wine(return_X_y=True)
+    # 지정된 column_start에서 연속되는 2개의 변수를 선택하여 X에 저장합니다.
+    X = X[:, column_start:column_start + 2]
+    return X, y
+
+# tsne_data 함수 정의
+def tsne_data(X):
+    # n_components=1로 t-SNE 객체를 정의합니다.
+    tsne = TSNE(n_components=1, random_state=0)
+    # t-SNE를 이용하여 1차원으로 축소합니다.
+    X_tsne = tsne.fit_transform(X)
+    return X_tsne
+
+# load_data와 tsne_data 실행 및 결과 확인
+X, y = load_data(column_start=0)  # column_start는 0으로 설정
+print("Original shape:", X.shape)
+print("Original X:", X[:5])
+
+X_tsne = tsne_data(X)
+print("Transformed shape:", X_tsne.shape)
+print("Transformed X_tsne:", X_tsne[:5])
+
+## 문제 6
+from sklearn.metrics import silhouette_score
+from sklearn.cluster import KMeans
+import numpy as np
+
+# silhouette_calculator 함수 정의
+def silhouette_calculator(X, cluster):
+    # 클러스터 모델의 레이블을 추출하여 silhouette_score 계산
+    labels = cluster.labels_
+    score = silhouette_score(X, labels, metric='euclidean')
+    return score
+
+# 데이터 준비
+# 여기서는 예시로 랜덤 데이터를 생성하지만, 실습에서는 실제 데이터를 사용합니다.
+# 예시 데이터 (실제 데이터에 따라 변경 가능)
+X = np.random.rand(300, 2)
+
+# 최적의 K 찾기
+best_score = 0
+best_k = 0
+
+for K in range(2, 11):  # 군집 개수를 2부터 10까지 시도
+    kmeans = KMeans(n_clusters=K, init='random', random_state=0)
+    kmeans.fit(X)
+    score = silhouette_calculator(X, kmeans)
+    
+    print(f"K: {K}, Silhouette Score: {score:.3f}")
+    
+    if score > best_score and score >= 0.46:
+        best_score = score
+        best_k = K
+
+# 최적의 K를 your_choice에 반영
+def your_choice():
+    return best_k
+
+print(f"Best K with Silhouette Score >= 0.46: {your_choice()}")
+
+## 문제 7
+from sklearn.decomposition import PCA
+import numpy as np
+
+# variance_calculator 함수 정의
+def variance_calculator(model, X):
+    # 원본 데이터의 분산
+    original_variance = np.var(X, axis=0).sum()
+    # 차원 축소된 데이터의 분산
+    reduced_variance = np.var(model.transform(X), axis=0).sum()
+    # 분산 유지율 계산
+    variance_ratio = reduced_variance / original_variance
+    return variance_ratio
+
+# main 함수 정의
+def main(X):
+    # 95% 이상 분산을 유지하는 최소 n_components 찾기
+    best_n_components = None
+    for n in range(1, X.shape[1] + 1):
+        pca = PCA(n_components=n)
+        pca.fit(X)
+        # 분산 유지율 계산
+        variance_ratio = variance_calculator(pca, X)
+        print(f"n_components: {n}, Variance Ratio: {variance_ratio:.3f}")
+        
+        # 분산 유지율이 95% 이상이면 최소 n_components 저장
+        if variance_ratio >= 0.95:
+            best_n_components = n
+            break
+    return best_n_components
+
+# 예시 데이터 (실제 데이터에 따라 변경 가능)
+# X = <원본 데이터 로드>
+
+# your_choice 함수 정의
+def your_choice():
+    # main 함수 실행 결과의 최적 n_components 반환
+    return main(X)
+
+print(f"Best n_components with >= 95% Variance Ratio: {your_choice()}")
+
+
+

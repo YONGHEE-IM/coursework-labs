@@ -1,0 +1,471 @@
+## 문제 1
+
+# MSE 손실 함수 구현
+def mse_loss(y_true, y_pred):
+    """
+    MSE 손실 함수
+    y_true: 실제 값 (numpy 배열)
+    y_pred: 예측 값 (numpy 배열)
+    """
+    n = len(y_true)
+    loss = (1 / n) * sum((y_true - y_pred) ** 2)
+    return loss
+
+# Gardient 계산
+def compute_gradients(x, y_true, w0, w1):
+    """
+    Gradient 계산 함수
+    x: 입력 데이터 (numpy 배열)
+    y_true: 실제 값 (numpy 배열)
+    w0, w1: 현재 가중치 값
+    """
+    n = len(y_true)
+    y_pred = w0 + w1 * x
+    gradient0 = -(2 / n) * sum(y_true - y_pred)
+    gradient1 = -(2 / n) * sum((y_true - y_pred) * x)
+    return gradient0, gradient1
+
+# Gardient Descent를 통한 가중치 업데이트
+def gradient_descent(x, y_true, w0, w1, learning_rate, iterations):
+    """
+    Gradient Descent를 통한 가중치 업데이트
+    x: 입력 데이터 (numpy 배열)
+    y_true: 실제 값 (numpy 배열)
+    w0, w1: 초기 가중치 값
+    learning_rate: 학습률
+    iterations: 반복 횟수
+    """
+    for _ in range(iterations):
+        gradient0, gradient1 = compute_gradients(x, y_true, w0, w1)
+        w0 -= learning_rate * gradient0
+        w1 -= learning_rate * gradient1
+    return w0, w1
+
+# 전체 코드 예제
+import numpy as np
+
+# 데이터 예제
+x = np.array([1, 2, 3, 4, 5])  # 입력 데이터
+y_true = np.array([2, 4, 6, 8, 10])  # 실제 값
+
+# 초기 가중치와 학습률
+w0, w1 = 0.0, 0.0
+learning_rate = 0.01
+iterations = 1000
+
+# Gradient Descent 실행
+w0, w1 = gradient_descent(x, y_true, w0, w1, learning_rate, iterations)
+
+# 결과 출력
+print(f"최적의 w0: {w0}, 최적의 w1: {w1}")
+
+## 문제 2
+import numpy as np
+
+def sigmoid(x):
+    """Sigmoid 함수 정의."""
+    return 1 / (1 + np.exp(-x))
+
+def getParameters(X, y):
+    """
+    훈련용 데이터를 이용하여 퍼셉트론 가중치를 학습하는 함수.
+
+    X: 입력 데이터 (numpy 배열, n x 3 형태)
+    y: 정답 레이블 (numpy 배열, 길이 n)
+    """
+    # **초기 가중치 w를 [1, 1, 1]로 정의**
+    w = np.array([1.0, 1.0, 1.0])
+    
+    # **초기 업데이트 리스트 wPrime을 [0, 0, 0]으로 정의**
+    wPrime = np.array([0.0, 0.0, 0.0])
+    
+    # 학습 파라미터
+    learning_rate = 0.1  # 학습률
+    max_iterations = 1000  # 최대 반복 횟수
+    tolerance = 1e-6  # 업데이트 크기가 이 값 이하이면 학습 종료
+
+    for iteration in range(max_iterations):
+        # **sigmoid 함수를 통과할 r값과 sigmoid 함수를 통과한 r값인 v를 정의**
+        r = np.dot(X, w)  # 예측값 계산 (가중치와 입력 데이터의 내적)
+        v = sigmoid(r)    # 예측 확률
+
+        # **가중치 업데이트를 위해 오차 계산**
+        error = y - v
+
+        # **wPrime 계산: 가중치의 변화량**
+        wPrime = learning_rate * np.dot(X.T, error)
+
+        # **가중치 업데이트**
+        w += wPrime
+
+        # **가중치 업데이트가 미미하면 학습 종료**
+        if np.linalg.norm(wPrime) < tolerance:
+            print(f"Converged after {iteration + 1} iterations")
+            break
+    else:
+        print(f"Reached max iterations ({max_iterations}) without full convergence")
+
+    return w
+
+## 문제 3
+
+# 텐서플로우 1.x 코드
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()  # 텐서플로우 2.x 환경에서 1.x 코드를 실행하려면 필요합니다.
+
+# 텐서플로우 1.x 연산 정의
+a = tf.constant(3)
+b = tf.constant(5)
+add_op = a + b
+
+# 세션 실행
+with tf.Session() as sess:
+    result_tf1 = sess.run(add_op)
+    print("텐서플로우 1.x 덧셈 결과:", result_tf1)
+
+# 텐서플로우 2.x 코드
+import tensorflow as tf
+
+# 텐서플로우 2.x 연산 정의 및 실행
+a = tf.constant(3)
+b = tf.constant(5)
+result_tf2 = tf.add(a, b)
+print("텐서플로우 2.x 덧셈 결과:", result_tf2.numpy())
+
+## 문제 4
+import tensorflow as tf
+
+def constant_tensors():
+    """
+    상수 텐서를 생성하는 함수.
+    """
+    # 상수 텐서 생성
+    tensor1 = tf.constant(42)  # 스칼라 상수 텐서
+    tensor2 = tf.constant([1, 2, 3, 4])  # 1D 텐서
+    tensor3 = tf.constant([[1, 2], [3, 4]])  # 2D 텐서
+
+    # 결과 출력
+    print("상수 텐서 1:", tensor1.numpy())
+    print("상수 텐서 2:", tensor2.numpy())
+    print("상수 텐서 3:", tensor3.numpy())
+
+def sequence_tensors():
+    """
+    시퀀스 텐서를 생성하는 함수.
+    """
+    # 시퀀스 텐서 생성
+    tensor1 = tf.range(10)  # 0부터 9까지의 시퀀스
+    tensor2 = tf.linspace(0.0, 1.0, num=5)  # 0부터 1까지 5개의 값 생성
+
+    # 결과 출력
+    print("시퀀스 텐서 1:", tensor1.numpy())
+    print("시퀀스 텐서 2:", tensor2.numpy())
+
+def variable_tensor():
+    """
+    변수를 생성하는 함수.
+    """
+    # 변수 텐서 생성
+    variable = tf.Variable([1.0, 2.0, 3.0, 4.0])  # 초기값
+    print("변수 텐서 초기값:", variable.numpy())
+
+    # 변수 값 업데이트
+    variable.assign([5.0, 6.0, 7.0, 8.0])  # 새로운 값 할당
+    print("변수 텐서 업데이트 후:", variable.numpy())
+
+# 코드 실행
+if __name__ == "__main__":
+    print("===== 상수 텐서 생성 =====")
+    constant_tensors()
+    print("\n===== 시퀀스 텐서 생성 =====")
+    sequence_tensors()
+    print("\n===== 변수 텐서 생성 =====")
+    variable_tensor()
+
+# 출력 예시
+===== 상수 텐서 생성 =====
+상수 텐서 1: 42
+상수 텐서 2: [1 2 3 4]
+상수 텐서 3: [[1 2]
+ [3 4]]
+
+===== 시퀀스 텐서 생성 =====
+시퀀스 텐서 1: [0 1 2 3 4 5 6 7 8 9]
+시퀀스 텐서 2: [0.   0.25 0.5  0.75 1.  ]
+
+===== 변수 텐서 생성 =====
+변수 텐서 초기값: [1. 2. 3. 4.]
+변수 텐서 업데이트 후: [5. 6. 7. 8.]
+
+## 문제 5
+import tensorflow as tf
+
+def arithmetic_operations(a, b):
+    """
+    이항 연산자를 사용해 사칙 연산 수행 후 결과를 출력하는 함수.
+    
+    a: 텐서 또는 상수 (숫자 또는 텐서)
+    b: 텐서 또는 상수 (숫자 또는 텐서)
+    """
+    # 사칙 연산 수행
+    addition = a + b  # 덧셈
+    subtraction = a - b  # 뺄셈
+    multiplication = a * b  # 곱셈
+    division = a / b  # 나눗셈
+    
+    # 결과 출력
+    print("덧셈 결과:", addition.numpy())
+    print("뺄셈 결과:", subtraction.numpy())
+    print("곱셈 결과:", multiplication.numpy())
+    print("나눗셈 결과:", division.numpy())
+
+# 예제 실행
+if __name__ == "__main__":
+    a = tf.constant(10)  # 상수 텐서
+    b = tf.constant(5)   # 상수 텐서
+    arithmetic_operations(a, b)
+
+## 문제 6
+import tensorflow as tf
+
+def insert():
+    """
+    사용자로부터 두 정수 또는 실수와 연산 종류를 입력받는 함수.
+    """
+    # 사용자 입력 받기
+    x = float(input("첫 번째 숫자 x를 입력하세요: "))
+    y = float(input("두 번째 숫자 y를 입력하세요: "))
+    cal = input("연산 종류를 입력하세요 (+, -, *, /): ")
+
+    # 연산 함수 호출
+    result = calcul(x, y, cal)
+    
+    # 결과 출력
+    print(f"결과: {result.numpy()}")
+
+def calcul(x, y, cal):
+    """
+    입력받은 연산 종류에 맞춰 계산을 수행하고 결과를 반환하는 함수.
+    cal은 연산 종류를 나타내는 문자로 +, -, *, / 중 하나입니다.
+    """
+    # 텐서로 변환
+    a = tf.constant(x)
+    b = tf.constant(y)
+    
+    # 연산 종류에 맞춰 계산 수행
+    if cal == "+":
+        return a + b
+    elif cal == "-":
+        return a - b
+    elif cal == "*":
+        return a * b
+    elif cal == "/":
+        # 나누기 연산 시 0으로 나누는 경우 처리
+        return tf.divide(a, b)
+    else:
+        return "잘못된 연산자입니다."
+
+# 함수 실행
+if __name__ == "__main__":
+    insert()
+
+## 문제 7
+import tensorflow as tf
+
+class LinearRegression:
+    def __init__(self):
+        # 가중치와 Bias 초기화
+        self.w = tf.Variable(tf.random.normal([1]), dtype=tf.float32)  # 가중치 (w)
+        self.b = tf.Variable(tf.zeros([1]), dtype=tf.float32)  # Bias (b)
+        
+    def predict(self, x):
+        """
+        선형 회귀 모델 예측 함수 y = w * x + b
+        """
+        return self.w * x + self.b
+    
+    def loss(self, y_true, y_pred):
+        """
+        MSE 손실 함수 구현
+        """
+        return tf.reduce_mean(tf.square(y_true - y_pred))  # MSE: 평균 제곱 오차
+
+    def train(self, x_train, y_train, learning_rate=0.01, epochs=100):
+        """
+        경사 하강법을 사용한 가중치 및 Bias 업데이트 함수
+        """
+        for epoch in range(epochs):
+            with tf.GradientTape() as tape:
+                # 예측값 계산
+                y_pred = self.predict(x_train)
+                # 손실 계산
+                loss_value = self.loss(y_train, y_pred)
+            
+            # 기울기 계산 (각각 w와 b에 대한 gradient)
+            gradients = tape.gradient(loss_value, [self.w, self.b])
+            
+            # 가중치와 Bias 업데이트
+            self.w.assign_sub(learning_rate * gradients[0])  # w 업데이트
+            self.b.assign_sub(learning_rate * gradients[1])  # b 업데이트
+            
+            # 10 epoch마다 손실 값 출력
+            if epoch % 10 == 0:
+                print(f'Epoch {epoch}, Loss: {loss_value.numpy()}, w: {self.w.numpy()}, b: {self.b.numpy()}')
+
+# 예시 데이터 (훈련 데이터)
+x_train = tf.constant([1, 2, 3, 4, 5], dtype=tf.float32)  # 입력 데이터 (특징)
+y_train = tf.constant([2, 4, 6, 8, 10], dtype=tf.float32)  # 실제값 (레이블)
+
+# 모델 생성 및 훈련
+model = LinearRegression()
+model.train(x_train, y_train, learning_rate=0.01, epochs=100)
+
+## 문제 8
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 데이터 생성 (예시 데이터)
+x_data = np.linspace(-1, 1, 100)  # -1부터 1까지 100개의 데이터 포인트 생성
+y_data = 2 * x_data + 1 + np.random.normal(0, 0.1, x_data.shape)  # y = 2x + 1, 여기에 노이즈 추가
+
+# 모델 생성
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Dense(20, input_dim=1, activation='relu'),  # 입력층 + 첫 번째 은닉층
+    tf.keras.layers.Dense(20, activation='relu'),  # 두 번째 은닉층
+    tf.keras.layers.Dense(1)  # 출력층 (y값 예측)
+])
+
+# 모델 컴파일
+model.compile(loss='mean_squared_error', optimizer='adam')
+
+# 모델 학습 (500 epochs)
+history = model.fit(x_data, y_data, epochs=500, verbose=2)
+
+# 예측값 생성
+predictions = model.predict(x_data)
+
+# 결과 출력
+plt.figure(figsize=(10,6))
+plt.scatter(x_data, y_data, label='True Data', color='blue')  # 실제 데이터
+plt.plot(x_data, predictions, label='Predictions', color='red')  # 예측 결과
+plt.legend()
+plt.title('Linear Regression with Neural Network')
+plt.xlabel('x_data')
+plt.ylabel('y_data')
+plt.show()
+
+# 모델 학습 과정에서의 손실값 출력 (history)
+plt.figure(figsize=(10,6))
+plt.plot(history.history['loss'])
+plt.title('Training Loss over Epochs')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.show()
+
+## 문제 9
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 데이터 생성 (예시 데이터, 이진 분류 문제)
+# x_data는 2차원 데이터, y_data는 0 또는 1 값
+x_data = np.random.rand(1000, 2)  # 1000개의 2차원 입력 데이터 생성
+y_data = np.random.randint(0, 2, 1000)  # 0 또는 1의 라벨을 1000개 생성
+
+# 모델 생성
+model = tf.keras.Sequential()
+
+# 히든층 (16개의 노드, ReLU 활성화 함수, 입력 차원은 2)
+model.add(tf.keras.layers.Dense(16, input_dim=2, activation='relu'))
+
+# 출력층 (1개의 노드, Sigmoid 활성화 함수)
+model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
+
+# 모델 컴파일
+model.compile(loss='mse', optimizer='adam', metrics=['binary_accuracy'])
+
+# 모델 학습 (500 epochs)
+history = model.fit(x_data, y_data, epochs=500, verbose=2)
+
+# 모델 평가 (학습된 모델로 예측)
+predictions = model.predict(x_data)
+
+# 예측 결과를 이진값으로 변환
+predictions_binary = (predictions > 0.5).astype(int)
+
+# 예측값과 실제값을 비교하여 정확도 출력
+accuracy = np.mean(predictions_binary == y_data)
+print(f'예측 정확도: {accuracy * 100:.2f}%')
+
+# 학습 과정에서의 손실과 정확도 그래프 출력
+plt.figure(figsize=(10,6))
+
+# 손실 값 그래프
+plt.subplot(1, 2, 1)
+plt.plot(history.history['loss'])
+plt.title('Loss over Epochs')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+
+# 정확도 그래프
+plt.subplot(1, 2, 2)
+plt.plot(history.history['binary_accuracy'])
+plt.title('Binary Accuracy over Epochs')
+plt.xlabel('Epochs')
+plt.ylabel('Binary Accuracy')
+
+plt.tight_layout()
+plt.show()
+
+## 문제 10
+import tensorflow as tf
+from tensorflow.keras.datasets import fashion_mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.utils import to_categorical
+
+# 1. Fashion-MNIST 데이터셋 로드 및 전처리
+(x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
+
+# 이미지 데이터를 0-255 범위에서 0-1 범위로 정규화
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+# y 데이터는 sparse categorical 형태이므로 그대로 사용
+# (다중 클래스 분류에서 sparse categorical을 사용할 때는 원-핫 인코딩이 필요하지 않음)
+
+# 2. 모델 생성 함수 정의
+def MLP():
+    model = Sequential([
+        # Flatten 레이어: 28x28 이미지를 784 크기의 1D 벡터로 변환
+        Flatten(input_shape=(28, 28)),
+        
+        # 첫 번째 은닉층: 64개의 뉴런, ReLU 활성화 함수
+        Dense(64, activation='relu'),
+        
+        # 두 번째 은닉층: 64개의 뉴런, ReLU 활성화 함수
+        Dense(64, activation='relu'),
+        
+        # 출력층: 10개의 클래스를 분류, softmax 활성화 함수
+        Dense(10, activation='softmax')
+    ])
+    
+    # 3. 모델 컴파일
+    model.compile(
+        loss='sparse_categorical_crossentropy',  # 다중 클래스 분류 손실 함수
+        optimizer='adam',                       # Adam 최적화 방법
+        metrics=['accuracy']                    # 정확도 측정
+    )
+    
+    # 4. 모델 학습
+    model.fit(x_train, y_train, epochs=10, verbose=2, validation_data=(x_test, y_test))
+    
+    return model
+
+# 5. 모델 학습
+model = MLP()
+
+# 6. 테스트 데이터에 대한 정확도 평가
+test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
+print(f"테스트 정확도: {test_acc * 100:.2f}%")
+

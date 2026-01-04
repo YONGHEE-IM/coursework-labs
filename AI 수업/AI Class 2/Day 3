@@ -1,0 +1,157 @@
+# 넘파이
+import numpy as np
+
+# 램덤 시드
+np.random.seed(12345)
+
+# 어레이 사용되는 부동소수점들의 정확도 지정
+np.set_printoptions(precision=4, suppress=True)
+
+# 파이플롯
+import matplotlib.pyplot as plt
+
+# # 도표 크기 지정
+plt.rc('figure', figsize=(10, 6))
+
+import numpy as np
+
+# 아이리스(붓꽃) 데이터 불러오기
+url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
+iris = np.genfromtxt(url, delimiter=',', dtype='str')
+
+
+# 문제 1
+
+mask = (iris_features[: 2] > 1.5) | (iris_features[:, 0] < 5.0)
+iris_features[mask]
+
+# 문제 2
+
+sepal_length = iris_features[:, 0]
+petal_length = iris_features[:, 2]
+
+np.corrcoef(sepal_length, petal_length)
+
+# 문제 3
+
+new_feature = (3.14 * iris_features[:, 2] * iris_features[:, 0] ** 2). reshape(-1, 1)
+iris_features_added = np.hstack([iris_features, new_feature])
+
+assert iris_features_added.shape == (150, 5)
+iris_features_added[:5]
+
+# 문제 4
+
+mask = iris_labels == 'Iris-versicolor'
+versicolor = iris_features[mask]
+versicolor[:5]
+
+# 문제 5
+
+petal_length_mean = iris.features[:, 0], mean()
+petal_length_median = np.median(iris_features[:, 0])
+petal_length_std = iris_features[:, 0].std()
+
+print(petal_length_mean, petal_length_median, petal_length_std, sep ='\n')
+
+# 문제 6
+
+{'Iris-setosa':3.418,
+ 'Iris-versicolor':2.77,
+ 'Iris-virginica':2.974}
+
+labels = np.unique(iris_labels)
+labels
+
+mask = iris_labels == 'Iris-setosa'
+iris_features[:, 1][mask].mean()
+
+iris_kind_sepal_length = dict()
+for label in labels:
+    mask = iris_labels == label
+    label_mean = iris_features[:, 1][mask].mean()
+    iris_kind_sepal_length[label] = np.round(label_mean, 3)
+
+iris_kind_sepal_length
+
+assert (iris_kind_sepal_length == {'Iris-setosa':3.418,
+                                   'Iris-versicolor':2.77,
+                                   'Iris-virginica':2.974})
+
+
+#문제 7
+
+iris_features_normalized = (iris_features - iris_features.min(axis=0)) / (iris_features.max(axis=0) - iris_features.min(axis=0))
+
+# 문제 8
+
+iris_features_standardized = (iris_features - iris_features.mean(axis=0)) / iris_features.std(axis=0)
+
+iris_features_standardized.mean(axis=0)
+
+iris_features_standardized.std(axis=0)
+
+iris_features_standardized[:5]
+
+# 문제 9
+
+X = iris_features[:, 2]
+Y = iris_features[:, 3]
+
+points_x = np.arange(0, 7.01, 0.02)
+points_y = np.arange(0, 3.51, 0.02)
+xs, ys = np.meshgrid(points_x, points_y)
+
+Z = np.zeros(xs.shape)
+
+plt.figure(figsize=(8, 4))
+
+# 등고선을 색으로 구분
+plt.contourf(xs, ys, Z, alpha=0.1, cmap='Purples')
+
+# 붓꽃 데이터 산점도
+plt.plot(X[iris_labels == 'Iris-setosa'], Y[iris_labels == 'Iris-setosa'], 'm+', label='Iris setosa')
+plt.plot(X[iris_labels == 'Iris-versicolor'], Y[iris_labels == 'Iris-versicolor'], 'ys', label='Iris versicolor')
+plt.plot(X[iris_labels == 'Iris-virginica'], Y[iris_labels == 'Iris-virginica'], 'b^',  label='Iris setosa')
+
+plt.xlabel("Petal length")
+plt.ylabel("Petal width")
+plt.legend(loc="upper left")
+plt.axis([0, 7.0, 0, 3])
+
+# plt.grid()
+plt.show()
+
+y = x + 3
+y = x + 6.6
+
+mask1 = xs + ys - 3.0 <= 0
+mask2 = (xs + ys - 3.0 > 0) & (xs + ys - 6.6 <= 0)
+mask3 = (xs + ys - 6.6 > 0)
+
+Z[mask1] = 0
+Z[mask2] = 1
+Z[mask3] = 2
+
+plt.figure(figsize=(8, 4))
+
+# 등고선을 색으로 구분
+plt.contourf(xs, ys, Z, alpha=0.1, cmap='Purples')
+
+# 붓꽃 데이터 산점도
+plt.plot(X[iris_labels == 'Iris-setosa'], Y[iris_labels == 'Iris-setosa'], 'm+', label='Iris setosa')
+plt.plot(X[iris_labels == 'Iris-versicolor'], Y[iris_labels == 'Iris-versicolor'], 'ys', label='Iris versicolor')
+plt.plot(X[iris_labels == 'Iris-virginica'], Y[iris_labels == 'Iris-virginica'], 'b^',  label='Iris setosa')
+
+plt.xlabel("Petal length")
+plt.ylabel("Petal width")
+plt.legend(loc="upper left")
+plt.axis([0, 7.0, 0, 3])
+
+# plt.grid()
+plt.show()
+
+
+
+
+

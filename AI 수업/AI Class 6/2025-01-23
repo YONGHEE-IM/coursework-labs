@@ -1,0 +1,269 @@
+## 문제 1
+# main.py
+
+def count_words(text):
+    """
+    주어진 텍스트에서 단어의 수를 계산합니다.
+    
+    Args:
+        text (str): 분석할 텍스트
+        
+    Returns:
+        int: 단어 수
+    """
+    if not isinstance(text, str):
+        raise ValueError("입력은 문자열이어야 합니다.")
+    
+    # 문자열을 공백 기준으로 분리하고 리스트의 길이를 반환
+    words = text.split()
+    return len(words)
+
+# 테스트 코드
+if __name__ == "__main__":
+    sample_text = "Python is a powerful programming language."
+    print(f"단어 수: {count_words(sample_text)}")  # 예상 출력: 6
+
+
+## 문제 2
+# main.py
+
+def count_words(text):
+    """
+    주어진 텍스트에서 단어의 수를 계산합니다.
+    
+    Args:
+        text (str): 분석할 텍스트
+        
+    Returns:
+        int: 단어 수
+    """
+    if not isinstance(text, str):
+        raise ValueError("입력은 문자열이어야 합니다.")
+    
+    words = text.split()
+    return len(words)
+
+
+def remove_stopwords(text, stopwords):
+    """
+    텍스트에서 불용어(stopwords)를 제거합니다.
+    
+    Args:
+        text (str): 입력 텍스트
+        stopwords (set): 제거할 불용어의 집합
+        
+    Returns:
+        str: 불용어가 제거된 텍스트
+    """
+    if not isinstance(text, str) or not isinstance(stopwords, set):
+        raise ValueError("text는 문자열, stopwords는 집합이어야 합니다.")
+    
+    words = text.split()
+    filtered_words = [word for word in words if word.lower() not in stopwords]
+    return ' '.join(filtered_words)
+
+
+def remove_less_freq(text, threshold):
+    """
+    텍스트에서 등장 빈도가 낮은 단어를 제거합니다.
+    
+    Args:
+        text (str): 입력 텍스트
+        threshold (int): 제거 기준이 되는 최소 등장 빈도
+        
+    Returns:
+        str: 빈도가 낮은 단어가 제거된 텍스트
+    """
+    if not isinstance(text, str) or not isinstance(threshold, int):
+        raise ValueError("text는 문자열, threshold는 정수이어야 합니다.")
+    
+    words = text.split()
+    word_freq = {}
+    
+    # 단어 빈도 계산
+    for word in words:
+        word_freq[word] = word_freq.get(word, 0) + 1
+    
+    # 최소 빈도를 만족하는 단어만 남기기
+    filtered_words = [word for word in words if word_freq[word] >= threshold]
+    return ' '.join(filtered_words)
+
+
+# 테스트 코드
+if __name__ == "__main__":
+    sample_text = "Python is a powerful and powerful programming language."
+    stopwords = {"is", "a", "and"}
+    threshold = 2
+
+    print(f"원본 텍스트: {sample_text}")
+    print(f"단어 수: {count_words(sample_text)}")  # 예상 출력: 7
+    print(f"불용어 제거 후: {remove_stopwords(sample_text, stopwords)}")  # 예상 출력: "Python powerful powerful programming language."
+    print(f"빈도 낮은 단어 제거 후: {remove_less_freq(sample_text, threshold)}")  # 예상 출력: "powerful powerful"
+
+
+## 문제3
+# main.py
+
+from gensim.models import KeyedVectors
+from scipy.spatial.distance import cosine
+
+# 사전 학습된 Word2Vec 모델 로드
+# 모델 파일이 필요합니다. 예: Google News Word2Vec
+# 아래 코드를 실행하려면 'GoogleNews-vectors-negative300.bin'과 같은 모델 파일 경로를 지정해야 합니다.
+# model = KeyedVectors.load_word2vec_format("GoogleNews-vectors-negative300.bin", binary=True)
+
+def compute_similarity(word1, word2, model):
+    """
+    두 단어 간의 유사도를 계산합니다.
+    
+    Args:
+        word1 (str): 첫 번째 단어
+        word2 (str): 두 번째 단어
+        model (KeyedVectors): Word2Vec 사전 학습된 모델
+        
+    Returns:
+        float: 두 단어 간의 코사인 유사도
+    """
+    if word1 not in model or word2 not in model:
+        raise ValueError("입력된 단어가 모델에 존재하지 않습니다.")
+    
+    vector1 = model[word1]
+    vector2 = model[word2]
+    similarity = 1 - cosine(vector1, vector2)  # 코사인 유사도 계산
+    return similarity
+
+
+def get_word_by_calculation(word1, word2, word3, model):
+    """
+    벡터 연산을 통해 단어를 유추합니다. 예: king - man + woman = queen
+    
+    Args:
+        word1 (str): 첫 번째 단어
+        word2 (str): 두 번째 단어 (빼는 단어)
+        word3 (str): 세 번째 단어 (더하는 단어)
+        model (KeyedVectors): Word2Vec 사전 학습된 모델
+        
+    Returns:
+        str: 계산된 결과 단어
+    """
+    if word1 not in model or word2 not in model or word3 not in model:
+        raise ValueError("입력된 단어가 모델에 존재하지 않습니다.")
+    
+    result_vector = model[word1] - model[word2] + model[word3]
+    result_word = model.most_similar(positive=[result_vector], topn=1)[0][0]  # 가장 유사한 단어 반환
+    return result_word
+
+
+# 테스트 코드
+if __name__ == "__main__":
+    # 모델 로드 예시
+    # model = KeyedVectors.load_word2vec_format("GoogleNews-vectors-negative300.bin", binary=True)
+    # 아래 코드는 실제 모델을 로드한 경우에만 작동합니다.
+    
+    try:
+        word1 = "king"
+        word2 = "man"
+        word3 = "woman"
+        
+        print(f"'{word1}'과(와) '{word2}'의 유사도: {compute_similarity(word1, word2, model):.2f}")
+        print(f"{word1} - {word2} + {word3} = {get_word_by_calculation(word1, word2, word3, model)}")
+    except Exception as e:
+        print(f"오류: {e}")
+
+
+## 문제 4
+# main.py
+
+from gensim.models import FastText, KeyedVectors
+from scipy.spatial.distance import cosine
+
+# 사전 학습된 FastText 모델 로드 (예: 'cc.en.300.bin' 또는 별도로 학습한 모델 사용)
+# 모델 파일이 필요합니다.
+# model = KeyedVectors.load_word2vec_format("cc.en.300.bin", binary=True)
+
+def compute_similarity(word1, word2, model):
+    """
+    두 단어 간의 유사도를 계산합니다.
+    
+    Args:
+        word1 (str): 첫 번째 단어
+        word2 (str): 두 번째 단어
+        model (KeyedVectors): FastText 또는 Word2Vec 모델
+        
+    Returns:
+        float: 두 단어 간의 코사인 유사도
+    """
+    if word1 not in model or word2 not in model:
+        raise ValueError("입력된 단어가 모델에 존재하지 않습니다.")
+    
+    vector1 = model[word1]
+    vector2 = model[word2]
+    similarity = 1 - cosine(vector1, vector2)  # 코사인 유사도 계산
+    return similarity
+
+
+def get_word_by_calculation(word1, word2, word3, model):
+    """
+    벡터 연산을 통해 단어를 유추합니다. 예: king - man + woman = queen
+    
+    Args:
+        word1 (str): 첫 번째 단어
+        word2 (str): 두 번째 단어 (빼는 단어)
+        word3 (str): 세 번째 단어 (더하는 단어)
+        model (KeyedVectors): FastText 또는 Word2Vec 모델
+        
+    Returns:
+        str: 계산된 결과 단어
+    """
+    if word1 not in model or word2 not in model or word3 not in model:
+        raise ValueError("입력된 단어가 모델에 존재하지 않습니다.")
+    
+    result_vector = model[word1] - model[word2] + model[word3]
+    result_word = model.most_similar(positive=[result_vector], topn=1)[0][0]  # 가장 유사한 단어 반환
+    return result_word
+
+
+def get_similar_word_from_oov(oov_word, model):
+    """
+    FastText 모델을 사용하여 OOV(Out of Vocabulary) 단어에 대해 가장 유사한 단어를 찾습니다.
+    
+    Args:
+        oov_word (str): 모델에 없는 단어
+        model (KeyedVectors): FastText 모델
+        
+    Returns:
+        str: 유사한 단어
+    """
+    if oov_word in model:
+        raise ValueError("입력된 단어는 이미 모델에 존재합니다.")
+    
+    # FastText는 OOV 단어도 벡터화가 가능하므로 직접 벡터 생성 후 가장 유사한 단어 찾기
+    similar_word = model.most_similar(oov_word, topn=1)[0][0]
+    return similar_word
+
+
+# 테스트 코드
+if __name__ == "__main__":
+    try:
+        # 모델 로드 예시
+        # model = KeyedVectors.load_word2vec_format("cc.en.300.bin", binary=True)
+        
+        # 테스트 데이터
+        word1 = "king"
+        word2 = "man"
+        word3 = "woman"
+        oov_word = "faketext"
+        
+        # compute_similarity 테스트
+        print(f"'{word1}'과(와) '{word2}'의 유사도: {compute_similarity(word1, word2, model):.2f}")
+        
+        # get_word_by_calculation 테스트
+        print(f"{word1} - {word2} + {word3} = {get_word_by_calculation(word1, word2, word3, model)}")
+        
+        # get_similar_word_from_oov 테스트
+        print(f"'{oov_word}'와 가장 유사한 단어: {get_similar_word_from_oov(oov_word, model)}")
+        
+    except Exception as e:
+        print(f"오류: {e}")
+
+

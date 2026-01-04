@@ -1,0 +1,317 @@
+## 문제1
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import make_classification
+from sklearn.metrics import accuracy_score
+
+def main():
+    # 데이터를 불러옵니다.
+    X, y = make_classification(n_samples=200, n_features=2, n_informative=2, n_redundant=0, random_state=42)
+
+    # 학습용 데이터와 테스트용 데이터로 나눕니다.
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # 로지스틱 회귀 모델 정의
+    model = LogisticRegression()
+
+    # 학습용 데이터로 모델 학습
+    model.fit(X_train, y_train)
+
+    # 테스트용 데이터로 예측
+    y_pred = model. predict(X_test)
+
+    # 모델 정확도 출력
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f"모델 정확도 : {accuracy:.2f}")
+
+    # 학습된 로지스틱 회귀 모델이 s자 곡선을 그리는지 확인
+    # 결정 경계를 그리기 위해서 그리드 생성
+    x_min, x_max = X[:, 0].min() - 0.5, X[:, 0].max() + 0.5
+    y_min, y_max = X[:, 1].min() - 0.5, X[:, 1].max() + 0.5
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01), np.arange(y_min, y_max, 0.01))
+
+    # 각 점에 대한 예측 확률을 계산하고 S자 곡선(결정 경계) 생성
+    Z = model.predict_proba(np.c_[xx.ravel(), yy.ravel()])[:, 1]
+    Z = Z.reshape(xx.shape)
+    
+    # 시각화
+    plt.contourf(xx, yy, Z, levels=[0, 0.5, 1], cmap="coolwarm", alpha=0.6)
+    plt.scatter(X[:, 0], X[:, 1], c=y, edgecolors='k', cmap='coolwarm', s=20)
+    plt.title("Logistic Regression Decision Boundary (S-Curve)")
+    plt.xlabel("Feature 1")
+    plt.ylabel("Feature 2")
+    plt.show()
+
+# main 함수 실행
+main()
+
+## 문제 2
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix, classification_report
+
+# 데이터 불러오고 학습/테스트 데이터 분리
+def load_data():
+    # 데이터 불러오기
+    data = pd.read_csv('data/dataset.csv')
+
+    # X와 y분리
+    X = data.drop(columns='Class')
+    y = data['class']
+
+    # 학습 데이터와 테스트 데이터 분리
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    return X_train, X_test, y_train, y_test
+
+# SVM 모델 학습 및 예측 함수
+def SVM():
+    # 데이터 불러오기
+    X_train, X_test, y_train, y_test = load_data()
+    
+    # SVM 모델 정의
+    model = SVC()
+    
+    # 모델 학습
+    model.fit(X_train, y_train)
+    
+    # 예측
+    y_pred = model.predict(X_test)
+    
+    # 결과 출력: Confusion Matrix와 분류 성능 지표
+    print("Confusion Matrix:")
+    print(confusion_matrix(y_test, y_pred))
+    print("\nClassification Report:")
+    print(classification_report(y_test, y_pred))
+
+# 함수 실행
+SVM()
+
+## 문제 3
+
+# svm.py
+from sklearn import svm
+
+def train_model(X, y):
+    # SVM 모델을 생성합니다. 커널은 'linear', c는 80으로 설정합니다.
+    model = svm.SVC(kernel='linear', C=80)
+    # 모델을 학습시킵니다.
+    model.fit(X,y)
+    return model
+
+def evaluate_model(model, X, y):
+    # 모델의 정확도를 반환합니다.
+    accuracy = model.score(X, y)
+    return accuracy
+
+# main.py
+import numpy as np
+from svm import train_model, evaluate_model
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+
+# 데이터 불러오기
+data = load_iris()
+X, y = data.data, data.target
+
+# 학습 및 검증 데이터셋 분리
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# svm 모델 학습
+model = train_model(X_train, y_train)
+
+# svm 모델 평가
+accuracy = evaluate_model(model, X_test, y_test)
+
+print(f"모델 정확도: {accuracy * 100:.2f}%")
+
+## 문제 4
+
+# svm.py
+from sklearn import svm
+
+def train_linear_model(X, y):
+    """선형 커널을 사용한 SVM 모델을 학습시킵니다."""
+    model = svm.SVC(kernel='linear', C=10)
+    model.fit(X, y)
+    return model
+
+def train_poly_model(X, y):
+    """다항 커널을 사용한 SVM 모델을 학습시킵니다."""
+    model = svm.SVC(kernel='poly', C=10)
+    model.fit(X, y)
+    return model
+
+def train_rbf_model(X, y):
+    """RBF 커널을 사용한 SVM 모델을 학습시킵니다."""
+    model = svm.SVC(kernel='rbf', C=10)
+    model.fit(X, y)
+    return model
+
+def train_sig_model(X, y):
+    """시그모이드 커널을 사용한 SVM 모델을 학습시킵니다."""
+    model = svm.SVC(kernel='sigmoid', C=10)
+    model.fit(X, y)
+    return model
+
+def evaluate_model(model, X, y):
+    """모델의 정확도를 평가합니다."""
+    accuracy = model.score(X, y)
+    return accuracy
+
+# main.py
+import numpy as np
+from svm import train_linear_model, train_poly_model, train_rbf_model, train_sig_model, evaluate_model
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+
+# 데이터 불러오기
+data = load_iris()
+X, y = data.data, data.target
+
+# 학습 및 검증 데이터셋 분리
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# SVM 모델 학습
+linear_model = train_linear_model(X_train, y_train)
+poly_model = train_poly_model(X_train, y_train)
+rbf_model = train_rbf_model(X_train, y_train)
+sig_model = train_sig_model(X_train, y_train)
+
+# SVM 모델 평가
+linear_accuracy = evaluate_model(linear_model, X_test, y_test)
+poly_accuracy = evaluate_model(poly_model, X_test, y_test)
+rbf_accuracy = evaluate_model(rbf_model, X_test, y_test)
+sig_accuracy = evaluate_model(sig_model, X_test, y_test)
+
+print(f"선형 모델 정확도: {linear_accuracy * 100:.2f}%")
+print(f"다항 모델 정확도: {poly_accuracy * 100:.2f}%")
+print(f"RBF 모델 정확도: {rbf_accuracy * 100:.2f}%")
+print(f"시그모이드 모델 정확도: {sig_accuracy * 100:.2f}%")
+
+## 문제 5
+
+def bayes_theorem(p_spam, p_confirm_spam, p_ham, p_confirm_ham):
+    # P(confirm) = P(confirm | spam) * P(spam) + P(confirm | ham) * P(ham)
+    p_confirm = (p_confirm_spam * p_spam) + (p_confirm_ham * p_ham)
+    
+    # P(spam | confirm)
+    p_spam_confirm = (p_confirm_spam * p_spam) / p_confirm
+    
+    # P(ham | confirm)
+    p_ham_confirm = (p_confirm_ham * p_ham) / p_confirm
+    
+    return p_spam_confirm, p_ham_confirm
+
+# 예시 확률 값
+p_spam = 0.4  # 스팸 메일일 확률
+p_confirm_spam = 0.6  # 스팸 메일에서 "확인"이 등장할 확률
+p_ham = 0.6  # 정상 메일일 확률
+p_confirm_ham = 0.2  # 정상 메일에서 "확인"이 등장할 확률
+
+# 함수 실행
+p_spam_confirm, p_ham_confirm = bayes_theorem(p_spam, p_confirm_spam, p_ham, p_confirm_ham)
+print("확인 키워드가 포함된 메일이 스팸 메일일 확률:", p_spam_confirm)
+print("확인 키워드가 포함된 메일이 정상 메일일 확률:", p_ham_confirm)
+
+## 문제 6
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+
+# 데이터를 불러오고 학습용, 테스트용 데이터로 분리하는 함수
+def load_data():
+    # 데이터 불러오기
+    data = load_iris()
+    X, y = data.data, data.target
+    
+    # 학습용 80%, 테스트용 20%로 데이터 분리
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+    
+    return X_train, X_test, y_train, y_test
+
+# 가우시안 나이브 베이즈 모델을 학습하고 테스트 데이터에 대해 예측하는 함수
+def Gaussian_NB(X_train, X_test, y_train, y_test):
+    # 가우시안 나이브 베이즈 모델 정의
+    model = GaussianNB()
+    
+    # 학습용 데이터로 모델 학습
+    model.fit(X_train, y_train)
+    
+    # 테스트 데이터에 대한 예측 수행
+    y_pred = model.predict(X_test)
+    
+    # 예측 정확도 계산
+    accuracy = accuracy_score(y_test, y_pred)
+    return y_pred, accuracy
+
+# 데이터 로드 및 분리
+X_train, X_test, y_train, y_test = load_data()
+
+# 모델 학습 및 예측
+y_pred, accuracy = Gaussian_NB(X_train, X_test, y_train, y_test)
+
+print("예측값:", y_pred)
+print("분류 정확도:", accuracy)
+
+## 문제 7
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+
+# 데이터를 불러오고 학습용, 테스트용 데이터로 분리하는 함수
+def load_data():
+    # 데이터 불러오기
+    data = load_iris()
+    X, y = data.data, data.target
+
+    # 학습용 80%, 테스트용 20%로 데이터 분리
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+    
+    return X_train, X_test, y_train, y_test
+
+# 가우시안 나이브 베이즈 모델을 학습하고 예측하는 함수
+def Gaussian_NB(X_train, X_test, y_train):
+    # 가우시안 나이브 베이즈 모델 정의
+    model = GaussianNB()
+
+    # 학습용 데이터로 모델 학습
+    model.fit(X_train, y_train)
+
+    # 테스트 데이터에 대한 예측 수행
+    y_pred = model.predict(X_test)
+
+    return y_pred
+
+# 혼동 행렬을 시각화하는 함수
+def plot_confusion_matrix(y_test, y_pred, normalize=True):
+    # 혼동 행렬 계산
+    cm = confusion_matrix(y_test, y_pred, normalize='true' if normalize else None)
+    
+    # 혼동 행렬 시각화
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp.plot(cmap=plt.cm.Blues)
+    plt.show()
+
+# main 함수
+def main():
+    # 데이터 로드 및 분리
+    X_train, X_test, y_train, y_test = load_data()
+    
+    # 모델 학습 및 예측
+    y_pred = Gaussian_NB(X_train, X_test, y_train)
+    
+    # 혼동 행렬 시각화
+    plot_confusion_matrix(y_test, y_pred, normalize=True)
+
+# 실행
+main()
+
+
+

@@ -1,0 +1,130 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 문제 1
+
+# (1)
+
+A = np.random.randint(0, 2, 5)
+B = np.random.randint(0, 2, 5)
+
+are_equal = np.all(A == B)
+
+A, B, are_equal
+
+# (2)
+
+at_least_one_equal = np.any(A == B)
+
+print("A:", A)
+print("B:", B)
+print("최소 하나의 동일한 항목이 있는가?:", at_least_one_equal)
+
+
+# 문제 2
+
+np.random.seed(10)
+
+Z = np.random.rand(10, 2)
+
+max_in_columns = Z.max(axis=0)
+
+Z[Z[:, 0] == max_in_columns[0], 0] = -1
+Z[Z[:, 1] == max_in_columns[1], 1] = -1
+
+print(Z)
+
+# 문제 3
+
+np.random.seed(10)
+
+Z = np.random.uniform(0, 1, 10)
+
+mean_Z = Z.mean()
+
+differences = np.abs(Z - mean_Z)
+
+min_index = differences.argmin()
+
+min_mean = Z[min_index]
+min_mean
+
+# 문제 4
+
+Z = np.random.rand(10, 2)
+
+mean_Z = Z.mean()
+std_Z = Z.std()
+
+Z_normalized = (Z - mean_Z) / std_Z
+Z_normalized
+
+# 문제 5
+
+data_path = "https://raw.githubusercontent.com/codingalzi/datapy/master/practices/data/exc_data_import.txt"
+
+data = np.genfromtxt(data_path, delimiter=',')
+
+print(data)
+
+# 문제 6
+
+Z = np.random.randint(1, 100, size=(10, 2))
+
+quotient, remainder = np.divmod(Z, 7)
+
+print("몫 배열:")
+print(quotient)
+print("나머지 배열:")
+print(remainder)
+
+
+# 문제 7
+
+Z =[10, 14, 21, 28, 35, 40, 49, 56, 63]
+
+is_divisible_by_7 = lambda x: x % 7 == 0
+
+n_mod7_0 = sum(map(is_divisible_by_7, Z))
+
+print(n_mod7_0)
+
+# 문제 8
+
+Z = np.array([10, 23, 35, 48, 51, 62, 77])
+
+Z_mod = Z % 7
+
+boolean_index = (Z_mod == 3)
+
+n_mod7_3 = Z[boolean_index]
+
+print(n_mod7_3)
+
+# 문제 9
+
+np.random.seed(1235)
+Z = np.random.randint(0, 50, (4, 3))
+
+sort_index = np.argsort(Z[:, 1])
+
+X = Z[sort_index]
+
+print("Original Z:\n", Z)
+print("Reordered X:\n", X)
+
+# 문제 10
+
+x = np.arange(0, 3 * np.pi, 0.1)
+
+y_sin = np.sin(x)
+y_cos = np.cos(x)
+
+plt.plot(x, y_sin, label = 'sine')
+plt.plot(x, y_cos, label = 'cosine')
+
+plt.xlabel('x axis')
+plt.ylabel('y axis')
+plt.legend()
+
+plt.show

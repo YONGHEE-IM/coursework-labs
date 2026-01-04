@@ -1,0 +1,239 @@
+# 파이썬 코딩 면허 시험
+
+# 문제1
+text = "a:b:c:d"
+
+result = "#".join(text.split(":"))
+
+print(result)
+
+# 문제2
+a = {'A': 90, 'B': 80}
+value = a.get('c', 70)
+
+print(value)
+
+# 문제3
+'''
+'a = a + [4, 5]' : 새로운 리스트를 생성하며, 기존이 리스트 'a'를 대체합니다. 메모리 사용이 증가할 수 있고 성능이 저하 될 수 있습니다.
+'a.extend([4, 5])' : 기존 리스트 'a'를 수정하여 새로운 요소를 추가합니다. 메모리를 더 효율적으로 사용하며 성능이 더 좋습니다.
+
+따라서 리스트를 확장할 때는 일반적으로 'extend'를 사용하는 것이 더 효율적입니다.
+'''
+
+# 문제4
+A = [20, 55, 67, 82, 45, 33, 90, 87, 100, 25]
+
+total = sum(score for score in A if score >= 50)
+
+print(total)
+
+# 문제5 
+def fib(n):
+    if n==0:
+        return 0
+    if n==1:
+        return 1
+    return fib(n-2)+fib(n-1)
+
+result = []
+for i in range(10):
+    print(fib(i))
+    result.append(fib(i))
+
+print(result)
+
+# 문제6
+numbers = input("숫자를 콤마(,)로 구분하여 입력하세요: ")
+
+number_list = map(int, numbers.split(','))
+
+total = sum(number_list)
+
+print(f"입력받은 숫자의 총합은 {total}입니다.")
+
+# 문제7
+number = int(input("구구단을 출력할 숫자를 입력하세요(2~9): "))
+
+if 2 <= number <= 9:
+    gugudan = [number * i for i in range(1, 10)]
+
+    print(' '.join(map(str, gugudan)))
+else:
+    print("입력값이 범위 밖입니다. 2부터 9사이의 숫자를 입력해 주세요.")
+
+# 문제8 
+def reverse_file_content(input_file, output_file):
+    with open(input_file, 'r') as file:
+        lines = file.readlines()
+
+    lines.reverse()
+
+    with open(output_file, 'w') as file:
+        file.writelines(lines)
+
+input_file = 'abc.txt'
+output_file = 'reversed_abc.txt'
+
+reverse_file_content(input_file, output_file)
+
+print(f"{output_file}에 역순으로 저장되었습니다.")
+
+# 문제9
+def calculate_average(input_file, output_file):
+    with open(input_file, 'r') as file:
+        numbers = [int(line.strip()) for line in file]
+
+    total_sum = sum(numbers)
+    average = total_sum / len(numbers) if numbers else 0
+
+    with open(output_file, 'w') as file:
+        file.write(f"{average:.2f}")
+
+input_file = 'sample.txt'
+output_file = 'result.txt'
+
+calculate_average(input_file, output_file)
+
+print(f"{output_file}에 평균 값이 저장되었습니다.")
+
+# 문제10
+class Calculator:
+    def __init__(self, numbers):
+        self.numbers = numbers
+    
+    def sum(self):
+        return sum(self.numbers)
+    
+    def avg(self):
+        if len(self.numbers) == 0:
+            return 0 
+        return sum(self.numbers) / len(self.numbers)
+    
+cal1 = Calculator([1, 2, 3, 4, 5])
+print(cal1.sum())
+print(cal1.avg())
+
+cal2 = Calculator([6, 7, 8, 9, 10])
+print(cal2.sum())
+print(cal2.avg())
+
+# 문제11
+import sys
+sys.path.append(r'C:\doit')
+import mymod
+
+# 문제12
+result = 0
+try : 
+    [1,2,3][3]   # IndexError 발생
+    "a" + 1      # TypeError 발생 (실행되지 않음)
+    4 / 0        # ZeroDivisionError 발생 (실행되지 않음)
+
+except TypeError:
+    result += 1
+except ZeroDivisionError:
+    result += 2
+except IndexError:
+    result += 3
+finally:
+    result += 4
+
+print(result)
+
+# 문제 13
+def DashInsert(s):
+    result = []
+
+    for i in range(len(s)):
+        if i > 0 :
+            current_is_odd = int(s[i]) % 2 != 0
+            previous_is_odd = int(s[i - 1]) % 2 != 0
+
+            if current_is_odd and previous_is_odd:
+                result.append('-')
+            elif not current_is_odd  and not previous_is_odd:
+                result.append('*')
+
+
+        result.append(s[i])
+
+    return ''.join(result)
+
+print(DashInsert("4546793"))
+
+# 문제 14
+def compress_string(s):
+    if not s:
+        return ""
+    
+    result = []
+
+    current_char = s[0]
+    count = 1
+
+    for char in s[1:]:
+        if char == current_char:
+            count += 1
+        else:
+            result.append(f"{current_char}{count}")
+            current_char = char
+            count = 1
+
+    result.append(f"{current_char}{count}")
+    
+    return ''.join(result)
+
+print(compress_string('aaabbcccccca'))
+
+# 문제 15
+def is_valid_numbers(s):
+    if len(s) != 10:
+        return False
+    return set(s) == set('0123456789')
+
+print(is_valid_number("0123456789"))
+print(is_valid_number("01234"))
+print(is_valid_number("01234567890"))
+print(is_valid_number("6789012345"))
+print(is_valid_number("0123456789"))
+
+# 문제16
+MORSE_CODE_DICT = {
+    'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+    'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+    'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+    'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+    'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---',
+    '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+    '8': '---..', '9': '----.'
+}
+
+REVERSE_MORSE_CODE_DICT = {value : key for key, value in MORSE_CODE_DICT.items()}
+
+def morse_to_text(morse_code):
+    words = morse_code.split('  ')
+
+    decoded_message =[]
+
+    for word in words:
+        characters = word.split(' ')
+        decoded_word = []
+        for char in characters:
+            if char in REVERSE_MORSE_CODE_DICT:
+                decoded_word.append(REVERSE_MORSE_CODE_DICT[char])
+            else:
+                decoded_word.append('?')
+        decoded_message.append(''.join(decoded_word))
+
+
+    return ' '.join(decoded_message)
+
+morse_code = ".... . .-.. .-.. ---  .-- --- .-. .-.. -.."
+print(morse_to_text(morse_code))
+
+morse_code = ".... . .-.. .-.. ---  ... .-.. . .--. ...  . .- .-. .-.. -.--"
+print(morse_to_text(morse_code))
+
+
+

@@ -1,0 +1,69 @@
+import numpy as np
+
+# 문제 1
+
+Z = np.zeros(10)
+
+Z[4] = 1
+
+Z
+
+# 문제2
+
+Z = np.arange(50)
+
+Z = Z[::-1]
+
+Z
+
+# 문제3
+
+Z = np.zeros((8,8), dtype=int)
+
+Z[1::2, ::2] = 1
+Z[::2, 1::2] = 1
+
+print(Z)
+
+# 문제4
+
+Z = np.ones((10, 10))
+
+Z[1:-1, 1:-1] = 0
+
+print(Z)
+
+# 문제 5
+
+inner_array = np.ones((5,5))
+
+Z = np.pad(inner_array, pad_width = 1, mode = 'constant', constant_values=0 )
+
+print(Z)
+
+# (2)
+
+Z = np.zeros((7,7))
+
+Z[1:-1, 1:-1] = 1
+
+print(Z)
+
+# 문제 6
+
+Z = np.arange(11)
+
+mask = (Z>3) & (Z<8)
+
+Z[mask] = Z[mask] * -1
+
+print(Z)
+
+# 문제 7
+
+A = np.arange(25).reshape(5,5)
+
+A[[0, 1]] = A[[1, 0]]
+
+print(A)
+

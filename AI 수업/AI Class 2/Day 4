@@ -1,0 +1,408 @@
+import matplotlib.pyplot as plt
+
+# 그래프 설정
+plt.rc('figure', figsize=(10, 6))  # 그래프 크기 지정
+
+import platform
+import matplotlib as mpl
+
+# 윈도우 설정
+if platform.system() == 'Windows':
+    font_path = "C:/Windows/Fonts/NGULIM.TTF"
+    font = mpl.font_manager.FontProperties(fname=font_path).get_name()
+    plt.rc('font', family=font)
+# 우분투/구글 코랩 설정
+elif platform.system() == 'Linux':
+    # 우분투/구글코랩의 경우 아래 명령문이 최소 한번 실행되어야 함
+    # !sudo apt-get install -y fonts-nanum*
+    # !fc-cache -fv
+
+    font = "NanumBarunGothic"
+    if not any(map(lambda ft: ft.name == font, mpl.font_manager.fontManager.ttflist)):
+        mpl.font_manager.fontManager.addfont("/usr/share/fonts/truetype/nanum/NanumBarunGothic.ttf")
+    plt.rc("font", family=font)
+    plt.rc("axes", unicode_minus=False)
+
+# 클로로필-A 수치 100개
+
+chl_a = [51, 51, 53, 53, 54, 55, 57, 57, 59, 60,
+         61, 62, 63, 64, 65, 66, 67, 67, 67, 69,
+         70, 71, 71, 72, 73, 75, 75, 76, 77, 79,
+         81, 81, 83, 83, 85, 86, 87, 88, 88, 88,
+         89, 89, 90, 91, 92, 95, 96, 96, 97, 98,
+         98, 98, 99, 101, 101, 102, 102, 103, 104, 104,
+         104, 104, 105, 106, 107, 108, 110, 111, 111, 112,
+         112, 112, 113, 114, 114, 116, 116, 116, 117, 118,
+         118, 118, 118, 119, 120, 120, 121, 122, 125, 120,
+         121, 121, 121, 122, 122, 122, 122, 124, 125, 124]
+
+# 시간당 방류량 수치 100개
+
+flow = [25, 25, 24, 24, 22, 22, 21, 21, 20, 20,
+        19, 19, 19, 18, 18, 18, 17, 17, 17, 16,
+        16, 16, 17, 16, 17, 17, 16, 16, 16, 16,
+        16, 16, 16, 16, 16, 15, 15, 15, 15, 15,
+        15, 14, 15, 14, 14, 13, 13, 13, 13, 13,
+        13, 13, 13, 13, 13, 13, 12, 12, 12, 12,
+        12, 12, 52, 11, 11, 11, 11, 11, 12, 12,
+        12, 12, 12, 11, 12, 12, 12, 11, 11, 11,
+        11, 11, 11, 11, 11, 11, 11, 11, 11, 10,
+        9, 9, 9, 9, 9, 9, 9, 49, 9, 9]
+
+# 문제 1
+
+len(chl_a)
+len(flow)
+
+# 문제 2
+
+max(chl_a)
+min(chl_a)
+
+# 문제 3
+
+max(flow)
+min(flow)
+
+# 문제 4
+
+from collections import Counter
+
+xs = range(101)
+
+chla_counts = Counter(chl_a)
+ys = [chla_counts[x] for x in xs]
+
+max(chla_counts.values())
+min(chla_counts.values())
+
+# 막대그래프 그리기
+plt.bar(xs, ys)
+
+# 그래프 설정
+plt.axis([50, 125, 0, 5])        # x축은 0부터 100까지, y축은 0부터 25까지 눈금 사용
+plt.xlabel("클로로필a 수치")     # x축 눈금 설명
+plt.ylabel("발생 수")            # y축 눈금 설명
+plt.show()
+
+
+# 문제 5
+
+def mean(xs):
+    return sum(xs) / len(xs)
+
+mean(flow)
+
+# 문제 6
+
+## 리스트의 길이가 짝수일 때
+def _median_even(xs):
+    sorted_xs = sorted(xs)
+    high_midpoint = len(xs) // 2
+    mean_value = (sorted_xs[high_midpoint - 1] + sorted_xs[high_midpoint]) / 2
+    return mean_value
+
+## 리스트의 길이가 홀수일 때
+def _median_odd(xs):
+    sorted_xs = sorted(xs)
+    midpoint = len(xs) // 2
+    mean_value = sorted_xs[midpoint]
+    return mean_value
+
+## 짝수/홀수 구분
+def median(xs):
+    if len(xs) % 2 == 0:
+        return _median_even(xs)
+    else:
+        return _median_odd(xs)
+    
+median(flow)
+
+# 문제7
+
+def mode(xs):
+    counts = Counter(xs)
+    max_count = max(counts.values())
+    modes = {x_i for x_i, count in counts.items() if count == max_count}
+    return modes
+
+modes(flow)
+
+# 문제 8
+
+def quantile(xs, p):
+    xs_sorted = sorted(xs)
+    p_index = int(p * len(xs))
+    
+    return xs_sorted[p_index]
+
+print("제1사분위수:", quantile(flow, 0.25))
+print("제3사분위수:", quantile(flow, 0.75))
+
+# 문제9
+
+# 벡터 내적 함수
+def dotV(v, w):
+    assert len(v) == len(w), "벡터들의 길이가 동일해야 함"""
+
+    return sum(v_i * w_i for v_i, w_i in zip(v, w))
+
+def dev_mean(xs):
+    """평균값과의 차이 계산"""
+    mu = mean(xs)
+    return [x - mu for x in xs]
+
+def sum_of_squares(v):
+    """반환값: v_1 * v_1 + ... + v_n * v_n"""
+    return dotV(v, v)
+
+def var(xs):
+    """
+    분산값 계산. 단, 2개 이상의 데이터가 있어야 함.
+    """
+
+    assert len(xs) >= 2, "두 개 이상의 데이터 필요"
+
+    n = len(xs)
+    deviations = dev_mean(xs)
+    deviation_sum = sum_of_squares(deviations)
+    return deviation_sum / (n - 1)
+
+var(chl_a)
+
+# 문제 10
+
+import math
+
+def std(xs):
+    return math.sqrt(var(xs))
+
+std(chl_a)
+
+# 문제 11
+
+def cov(xs, ys):
+    assert len(xs) == len(ys),
+
+    return dotV(dev_mean(xs), dev_mean(ys)) / (len(xs) - 1)
+
+cov(chl_a,  flow)
+
+# 문제 12
+
+def corrcoef(xs, ys):
+    assert len(xs) == len(ys),
+
+    stdev_x = std(xs)
+    stdev_y = std(ys)
+
+    if stdev_x > 0 and stdev_y > 0:
+        return cov(xs, ys) / (stdev_x * stdev_y)
+    else:
+        return 0
+    
+corrcoef(chl_a, flow)
+
+# 문제 13
+
+plt.scatter(flow, chl_a)
+
+# 그래프 설정
+plt.xlabel("방류량")           # x축 눈금 설명
+plt.ylabel("클로로필-A")       # y축 눈금 설명
+plt.show()
+
+over40_index = []
+
+for i in range(100):
+    if flow[i] >= 40:
+        over40_index.append(i)
+
+over40_index
+
+new_chl_a = []
+
+for i in range(100):
+    if i in over40_index:
+        continue
+
+    new_chl_a.append(chl_a[i])
+
+len(new_chl_a)
+
+new_flow = []
+
+for i in range(100):
+    if i in over40_index:
+        continue
+
+    new_flow.append(flow[i])
+
+len(new_flow)
+
+plt.scatter(new_flow, new_chl_a)
+
+# 문제 14
+
+# 그래프 설정
+plt.xlabel("방류량")           # x축 눈금 설명
+plt.ylabel("클로로필-A")       # y축 눈금 설명
+plt.show()
+
+mean(chl_a)
+mean(new_chl_a)
+mean(flow)
+mean(new_flow)
+
+median(chl_a)
+median(new_chl_a)
+median(flow)
+median(new_flow)
+
+mode(chl_a)
+mode(new_chl_a)
+mode(flow)
+mode(new_flow)
+
+data_range(chl_a)
+data_range(new_chl_a)
+data_range(flow)
+data_range(new_flow)
+
+def iqr(xs):
+    return quantile(xs, 0.75) - quantile(xs, 0.25)
+
+iqr(chl_a)
+iqr(new_chl_a)
+iqr(flow)
+iqr(new_flow)
+
+var(chl_a)
+var(new_chl_a)
+var(flow)
+var(new_flow)
+
+std(chl_a)
+std(new_chl_a)
+std(flow)
+std(new_flow)
+
+def cov(xs, ys):
+    assert len(xs) == len(ys),
+
+    return dotV(dev_mean(xs), dev_mean(ys)) / (len(xs) - 1)
+
+cov(chl_a, flow)
+cov(new_chl_a, new_flow)
+
+corrcoef(chl_a, flow)
+corrcoef(new_chl_a, new_flow)
+
+## practice-pandas_1 문제
+
+import numpy as np
+import pandas as pd
+
+# 문제 1
+
+aList = [1, 3, 5, np.nan, 6, 8]
+
+aSeries = pd.Series(aList)
+aSeries
+
+# 문제 2
+
+# (1)
+abcd_dict = {
+    "A": 1.0,
+    "B": pd.Series(1, index=list(range(4)), dtype="float32"),
+    "C": np.array([3] * 4, dtype="int32"),
+    "D": ["test", "train", "test", "train"]
+}
+
+df1 = pd.DataFrame(abcd_dict)
+df1
+
+# (2)
+df1.dtypes
+
+# 문제 3
+dates = pd.date_range(start="20130101", periods=6, freq="D")
+dates
+
+np.random.seed(0)
+
+df = pd.DataFrame(np.random.randn(6, 4), index=dates, columns=list("ABCD"))
+df
+
+# 문제 4
+
+## (1)
+df.head()
+
+## (2)
+df.tail()
+
+# 문제 5
+
+## (1)
+df.index
+
+## (2)
+df.columns
+
+# 문제 6
+
+## (1)
+df.to_numpy()
+
+df1.to_numpy()
+
+# 문제 7
+df.describe()
+
+# 문제 8
+score_url = "https://raw.githubusercontent.com/codingalzi/datapy/master/practices/data/score.txt"
+
+## (1)
+df_score = pd.read_csv(score_url, sep=',', header=0)
+df_score
+
+## (2)
+df_score.columns
+
+## (3)
+columns_stipped = df_score.columns.str.strip("# ")
+columns_stipped
+
+df_score.columns = columns_stipped
+df_score
+
+# 문제 9
+s = pd.Series(np.random.randn(5), index=["a", "b", "c", "d", "e"])
+s
+
+s.reindex(["e", "b", "f", "d"])
+
+# 문제 10
+
+df
+
+dates
+
+## (1)
+df.reindex(index = [dates[1], dates[3], dates[0],] columns=["C", "B", "A"])
+
+## (2)
+[dates[1], dates[3], dates[0]]
+
+df.reindex([dates[1], dates[3], dates[0]], axis="index")
+
+df.reindex([dates[1], dates[3], dates[0]], axis=0)
+
+### (3)
+["C", "B", "A"]
+
+df.reindex(["C", "B", "A"], axis="columns")
+
+df.reindex(["C", "B", "A"], axis=1)

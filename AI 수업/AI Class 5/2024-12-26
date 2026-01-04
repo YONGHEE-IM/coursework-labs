@@ -1,0 +1,399 @@
+## 문제 1
+# 필요한 라이브러리 임포트
+from PIL import Image
+import numpy as np
+import os
+
+# 이미지 파일 경로 설정
+IMG_PATH = "data/images" 
+IMG_SIZE = (150, 150)
+
+# 이미지 파일 목록 가져오기
+
+image_files = [f for f in os.listdir(IMG_PATH) if f.endswith(('.png', '.jpg', '.jpeg'))]
+
+# 첫 번째 이미지 파일 선택
+if len(image_files) > 0:
+    img_file = os.path.join(IMG_PATH, image_files[0])
+
+    # 이미지 열기
+    img = Image.open(img_file)
+
+    # 원본 이미지 확인
+    print(f"Original image size: {img.size}")
+    img.show()
+
+    # 이미지 크기 조정
+    resized_img = img.resize(IMG_SIZE)
+
+    # 크기 조정된 이미지 확인
+    print(f"Resized image size: {resized_img.size}")
+    resized_img.show()
+
+    # 이미지를 Numpy 배열로 변환
+    img_array = np.array(resized_img)
+    print(f"Image as numpy array shape: {img_array.shape}")
+else:
+    print("No image files found in the specified path.")
+
+## 문제 2
+# 필요한 라이브러리 임포트
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+
+# 이미지 경로 설정
+IMG_PATH = "data/images"
+IMG_SIZE = (150, 150)
+
+# 첫 번쨰 이미지 파일 가져오기
+image_files = [f for f in os.listdir(IMG_PATH) if f.endswith(('.png', '.jpg', '.jpeg'))]
+if len(image_files) > 0:
+    img_file = os.path.join(IMG_PATH, image_files[0])
+
+    # 이미지 읽기 및 크기 조정
+    img = Image.open(img_file).convert('L')
+    img = img.resize(IMG_SIZE)
+    img_array = np.array(img)
+
+    # 이미지 크기
+    height, width = img_array.shape
+
+    # 오른쪽 아래 1/4 영역 선택
+    x_range = (width // 2, width)
+    y_range = (height // 2, height)
+    mask = np.zeros_like(img_array, dtype=np.uint8)
+    mask[y_range[0]:y_range[1], x_range[0]:x_range[1]] = 255
+
+    # 히스토그램 계산
+    hist = cv2.calcHist(
+        [img_array],  # 이미지 입력
+        [0],          # 그레이스케일 채널
+        mask,         # 마스크 적용
+        [256],        # 히스토그램 빈의 수
+        [0, 256]      # 그레이 레벨 범위
+    )
+
+    # 히스토그램 시각화
+    plt.figure(figsize=(10, 5))
+    plt.subplot(1, 2, 1)
+    plt.title("Grayscale Image")
+    plt.imshow(img_array, cmap='gray')
+    plt.axis('off')
+
+    # 오른쪽 아래 1/4 영역 표시
+    plt.subplot(1, 2, 2)
+    plt.title("Histogram of Bottom-Right Quarter")
+    plt.plot(hist, color='black')
+    plt.xlabel("Pixel Value")
+    plt.ylabel("Frequency")
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.show()
+else:
+    print("No image files found in the specified path.")
+
+## 문제 3
+import os
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+# 데이터 경로 설정
+train_dir = "dataset/train"  # 훈련 데이터 경로
+test_dir = "dataset/test"    # 테스트 데이터 경로
+
+# 1. rescale_ratio 설정
+# 픽셀 값을 0-255에서 0-1로 변환하기 위한 비율
+rescale_ratio = 1.0 / 255.0
+
+# 2. ImageDataGenerator를 사용한 데이터 증강 설정
+# horizontal_flip을 True로 설정하여 수평 뒤집기 활성화
+train_datagen = ImageDataGenerator(
+    rescale=rescale_ratio,
+    horizontal_flip=True,   # 수평 뒤집기
+    rotation_range=15,      # 최대 15도 회전
+    width_shift_range=0.1,  # 너비 방향으로 최대 10% 이동
+    height_shift_range=0.1  # 높이 방향으로 최대 10% 이동
+)
+
+test_datagen = ImageDataGenerator(rescale=rescale_ratio)  # 테스트 데이터는 증강 없이 rescale만 수행
+
+# 3. generate_dataset 함수 정의
+def generate_dataset(train_dir, test_dir, batch_size=32, target_size=(150, 150)):
+    """
+    훈련 및 테스트 데이터셋을 생성하는 함수
+    - train_dir: 훈련 데이터가 위치한 경로
+    - test_dir: 테스트 데이터가 위치한 경로
+    - batch_size: 한 번에 처리할 이미지 수
+    - target_size: 이미지 크기 조정 (너비, 높이)
+    """
+    # 훈련 데이터셋 생성
+    train_generator = train_datagen.flow_from_directory(
+        train_dir,
+        target_size=target_size,
+        batch_size=batch_size,
+        class_mode='binary'  # 이진 분류: normal과 opacity
+    )
+
+    # 테스트 데이터셋 생성
+    test_generator = test_datagen.flow_from_directory(
+        test_dir,
+        target_size=target_size,
+        batch_size=batch_size,
+        class_mode='binary'
+    )
+    
+    return train_generator, test_generator
+
+# 데이터셋 생성
+batch_size = 32
+target_size = (150, 150)  # 이미지 크기를 150x150으로 조정
+train_generator, test_generator = generate_dataset(train_dir, test_dir, batch_size, target_size)
+
+# 데이터셋 정보 출력
+print(f"훈련 데이터셋 클래스: {train_generator.class_indices}")
+print(f"테스트 데이터셋 클래스: {test_generator.class_indices}")
+
+## 문제 4
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+
+def build_vgg16(input_shape=(224, 224, 3), num_classes=1000):
+    """
+    VGG16 모델을 구축하는 함수
+    - input_shape: 입력 이미지의 크기
+    - num_classes: 출력 클래스 수
+    """
+    model = Sequential()
+
+    # 첫 번째 블록
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=input_shape))
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
+    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+    # 두 번째 블록
+    model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
+    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+    # 세 번째 블록
+    model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
+    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+    # 네 번째 블록
+    model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
+    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+    # 다섯 번째 블록
+    model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
+    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+    # 분류기
+    model.add(Flatten())
+    model.add(Dense(4096, activation='relu'))
+    model.add(Dense(4096, activation='relu'))
+    model.add(Dense(num_classes, activation='softmax'))
+
+    return model
+
+# 모델 생성
+vgg16_model = build_vgg16(input_shape=(224, 224, 3), num_classes=1000)
+vgg16_model.summary()
+
+
+## 문제 5
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+# 예제 데이터 생성
+def create_data():
+    data = {
+        "feature1": range(1, 101),
+        "feature2": range(101, 201),
+        "label": [x % 2 for x in range(1, 101)]
+    }
+    return pd.DataFrame(data)
+
+# merge_data 함수 정의
+def merge_data(train_data, val_data, test_data):
+    return {
+        "train": train_data,
+        "validation": val_data,
+        "test": test_data
+    }
+
+# 데이터 준비
+data = create_data()
+
+# 데이터 분할
+train_data, temp_data = train_test_split(data, test_size=0.3, random_state=42)
+val_data, test_data = train_test_split(temp_data, test_size=0.5, random_state=42)
+
+# 데이터 병합
+merge_data = merge_data(train_data, val_data, test_data)
+
+# 결과 확인
+print("Train Data Shape:", merged_data["train"].shape)
+print("Validation Data Shape:", merged_data["validation"].shape)
+print("Test Data Shape:", merged_data["test"].shape)
+
+## 문제 6
+from vgg import VGG19
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.optimizers import Adam
+
+# VGG19 모델 생성
+input_shape = (224, 224, 3)
+model = VGG19(input_shape=input_shape, classes=2)
+
+# 모델 컴파일
+model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
+
+# 데이터 전처리
+train_datagen = ImageDataGenerator(
+    rescale=1./255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip = True
+)
+
+test_datagen = ImageDataGenerator(rescale=1./255)
+
+# 학습 데이터 준비
+training_set = train_datagen.flow_from_directory(
+    'dataset/train',
+    target_size=(224, 224),
+    batch_size=32,
+    class_mode = 'categorical'
+)
+
+# 검증 데이터 준비
+val_set = test_datagen.flow_from_directory(
+    'dataset/validation',
+    target_size=(224, 224)
+    batch_size=32,
+    class_mode='categorical'
+)
+
+# 테스트 데이터 준비
+test_set = test_datagen.flow_from_directory(
+    'dataset/test',
+    target_size=(224, 224),  # 지시사항 2: 테스트 이미지 크기 변경
+    batch_size=32,
+    class_mode='categorical'
+)
+
+# 모델 학습
+model.fit(
+    training_set,
+    steps_per_epoch=20,
+    epochs=4,
+    validation_data=val_set
+)
+
+# 테스트 데이터 평가
+test_loss, test_accuracy = model.evaluate(test_set)
+print(f"Test Loss: {test_loss:.4f}")
+print(f"Test Accuracy: {test_accuracy:.4f}")
+
+## 문제 7
+import numpy as np
+from sklearn.metrics import confusion_matrix
+
+# 예제 confusion matrix (여기서는 사용자가 제공한 것을 대체로 사용)
+# 실제 데이터에서 confusion_matrix 출력값을 사용하세요.
+cm = np.array([[50, 10], [5, 35]])  # Replace this with your confusion_matrix
+
+# 혼동 행렬 요소 추출
+tp = cm[0, 0]
+fp = cm[0, 1]
+fn = cm[1, 0]
+tn = cm[1, 1]
+
+# 평가 지표 계산
+accuracy = (tp + tn) / (tp + tn + fp + fn)
+precision = tp / (tp + fp) if (tp + fp) != 0 else 0
+recall = tp / (tp + fn) if (tp + fn) != 0 else 0
+f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) != 0 else 0
+
+# 결과 출력
+print(f"Confusion Matrix:\n{cm}")
+print(f"True Positive (TP): {tp}")
+print(f"False Positive (FP): {fp}")
+print(f"False Negative (FN): {fn}")
+print(f"True Negative (TN): {tn}")
+print(f"Accuracy: {accuracy:.4f}")
+print(f"Precision: {precision:.4f}")
+print(f"Recall: {recall:.4f}")
+print(f"F1 Score: {f1_score:.4f}")
+
+## 문제 8
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.metrics import RocCurveDisplay
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+
+# 예시 데이터셋 (샌 디에고 대학에서 제공된 데이터셋에 맞춰서 사용)
+# X_train, X_test, y_train, y_test는 데이터셋에서 준비된 학습/테스트 데이터
+# 예시로 랜덤 포레스트 분류기를 사용한 예시입니다.
+# 실제 데이터셋에 맞는 모델을 사용해야 합니다.
+# X_train, X_test, y_train, y_test 로 설정되어야 합니다.
+
+# 예시 데이터 로딩
+# X_train, X_test, y_train, y_test = load_your_data()  # 실제 데이터셋 로드
+
+# 학습된 모델을 사용 (예시로 RandomForest 사용)
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+# 예측 확률 계산 (각 클래스에 대한 확률)
+y_prob = model.predict_proba(X_test)
+
+# 클래스 별 ROC 곡선과 AUC 계산
+lb = LabelBinarizer()
+y_bin = lb.fit_transform(y_test)  # 다중 클래스 레이블을 이진화
+
+fpr = {}
+tpr = {}
+roc_auc = {}
+
+# 각 클래스에 대해 ROC 계산
+for i in range(y_bin.shape[1]):
+    fpr[i], tpr[i], _ = roc_curve(y_bin[:, i], y_prob[:, i])
+    roc_auc[i] = auc(fpr[i], tpr[i])
+
+# ROC Curve 시각화
+plt.figure(figsize=(10, 8))
+
+# 각 클래스별 ROC Curve 그리기
+colors = ['blue', 'green', 'red', 'orange']  # 각 클래스별 색상
+for i in range(y_bin.shape[1]):
+    plt.plot(fpr[i], tpr[i], color=colors[i], lw=2, label=f'Class {i+1} (AUC = {roc_auc[i]:.2f})')
+
+# 대각선 선 (Random classifier)
+plt.plot([0, 1], [0, 1], color='gray', linestyle='--')
+
+# 그래프 설정
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='lower right')
+
+# 그래프 출력
+plt.show()
+
+# 각 클래스에 대한 AUC 출력
+for i in range(y_bin.shape[1]):
+    print(f"Class {i+1} AUC: {roc_auc[i]:.4f}")
